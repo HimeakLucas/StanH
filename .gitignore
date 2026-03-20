@@ -249,3 +249,7 @@ fabric.properties
 
 .idea/
 
+imgs_xrays/
+imgs_xrays
+
+datasets/ffhq
