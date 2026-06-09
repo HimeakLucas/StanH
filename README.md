@@ -70,3 +70,33 @@ python demo.py \
 ```
 
 Until now, we use Torcach to perform Arithmetic coding (very slow), in future code will be adapted to use RANS as standard model in CompressAI library
+
+---
+
+## PIBIC fork — STanH as a domain-adaptation adapter
+
+This is a research fork (undergraduate research / PIBIC). The goal is to test whether the
+STanH quantization layer also works as a **lightweight fine-tuning adapter** for
+domain-specific datasets (X-ray, faces, documents): the anchor backbone (Zou22/WACNN)
+released by the authors is **frozen**, and only the STanH parameters (`w`, `b`) are
+refined on the target domain, then compared against the generic derivations and against
+the VVC reference software (VTM), following the paper's evaluation protocol.
+
+### Running
+
+All scripts expect to be run **from the repository root** with `src` on the path:
+
+```bash
+conda activate stanh
+export PYTHONPATH=src            # scripts also resolve ../src automatically
+
+python eval/evaluate_kodak.py    # STanH RD curve on Kodak
+python eval/eval_vtm.py          # VTM baseline on Kodak (needs VVCSoftware_VTM built)
+bash   train/run_xray_finetune.sh
+python plots/plot_final.py
+```
+
+Datasets live under `datasets/` and model checkpoints under `models/` (both git-ignored,
+except the tiny paper derivations). The 300 MB anchor must be downloaded from the
+authors' [Drive link](https://drive.google.com/drive/folders/1LJ6nmQZJyMaJKFzr-sb2C9m9oxHE5pE5)
+into `models/original_paper/STanH/anchor/`.

@@ -1,5 +1,9 @@
 # Custom ignores
 wandb
+logs/
+
+# Local tooling / agent state
+.claude/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -253,3 +257,42 @@ imgs_xrays/
 imgs_xrays
 
 datasets/ffhq
+
+*.pth.tar
+xrays
+*.zip
+*.pdf
+/logs
+.DS_Store
+
+# Datasets (host externally; see README)
+/datasets/
+
+# Checkpoints: ignore all .pth.tar (heavy), but keep the tiny paper derivations
+# so variable-rate can be reproduced without re-hosting them.
+!models/original_paper/STanH/derivations/*.pth.tar
+
+# Old/large checkpoint dirs (moved to ~/StanH_archive)
+models/old_trains/
+models/video_finetuning/
+models/derivations/
+
+# Result artifacts
+*.yuv
+results/
+.vscode
+
+# Staging area for downloaded/extracted domain datasets (large; re-fetch or rsync)
+scripts/staging/
+
+# LaTeX build artifacts (keep .tex/.cls/figures; ignore generated files)
+*.aux
+*.out
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+
+pibic-paper/
