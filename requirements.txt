@@ -15,3 +15,7 @@ einops
 seaborn
 ipywidgets
 psutil
+torchac
+datasets
+huggingface_hub
+kaggle
