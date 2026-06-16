@@ -147,6 +147,10 @@ class WACNNMultiSTanH(WACNNSoS):
         for p in self.g_s.parameters():
             p.requires_grad = True
 
+    def unfreeze_encoder(self):
+        for p in self.g_a.parameters():
+            p.requires_grad = True
+
 
                 
 

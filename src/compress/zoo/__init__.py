@@ -24,7 +24,6 @@ models = {
     "cnn_multi": WACNNMultiSTanH,
     "stf_StanH":SymmetricalTransFormerStanH
 
-
 }
 
 aux_net_models = {
