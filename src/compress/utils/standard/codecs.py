@@ -98,6 +98,16 @@ def ycbcr2rgb(ycbcr):
         rgb (torch.Tensor): converted tensor
     """
     _check_input_tensor(ycbcr)
+    
+    y, cb, cr = ycbcr.chunk(3, -3)
+    Kr, Kg, Kb = YCBCR_WEIGHTS["ITU-R_BT.709"]
+    
+    r = y + (cr - 0.5) * 2.0 * (1.0 - Kr)
+    b = y + (cb - 0.5) * 2.0 * (1.0 - Kb)
+    g = (y - Kr * r - Kb * b) / Kg
+    
+    rgb = torch.cat((r, g, b), dim=-3)
+    return rgb
 
 
 # from torchvision.datasets.folder

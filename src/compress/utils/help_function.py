@@ -94,23 +94,18 @@ def sec_to_hours(seconds):
 
 from datetime import datetime
 from os.path import join         
-def create_savepath(args,epoch):
-    now = datetime.now()
-    date_time = now.strftime("%m%d")
-    c = join(date_time,"_lambda_",str(args.lmbda),"_epoch_",str(epoch)).replace("/","_")
-
-    
-    c_best = join(c,"best").replace("/","_")
-    c = join(c,args.suffix).replace("/","_")
-    c_best = join(c_best,args.suffix).replace("/","_")
-    
-    
+def create_savepath(args, epoch):
     path = args.filename
-    savepath = join(path,c)
-    savepath_best = join(path,c_best)
+    # Nome fixo para o último checkpoint do lambda atual
+    c = f"lambda_{args.lmbda}_last{args.suffix}"
+    # Nome fixo para o melhor checkpoint do lambda atual
+    c_best = f"lambda_{args.lmbda}_best{args.suffix}"
     
-    print("savepath: ",savepath)
-    print("savepath best: ",savepath_best)
+    savepath = join(path, c)
+    savepath_best = join(path, c_best)
+    
+    print("savepath: ", savepath)
+    print("savepath best: ", savepath_best)
     return savepath, savepath_best
 
 
@@ -201,11 +196,13 @@ def configure_optimizers(net, args):
 
     return optimizer, aux_optimizer
 import wandb
-def save_checkpoint_our(state, is_best, filename,filename_best):
+def save_checkpoint_our(state, is_best, filename, filename_best):
     torch.save(state, filename)
-    wandb.save(filename)
+    # Salva no wandb apenas o 'last' para manter sincronizado sem criar milhares de arquivos
+    # wandb.save(filename) # Opcional: descomente se quiser o last no cloud sempre
     if is_best:
-        shutil.copyfile(filename, filename_best)
+        torch.save(state, filename_best)
+        # O melhor modelo sempre vai para o cloud
         wandb.save(filename_best)
 
 

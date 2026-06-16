@@ -199,8 +199,8 @@ def main(argv):
 
 
     train_dataset = ImageFolder(args.dataset, split="train", transform=train_transforms, num_images=args.num_images)
-    valid_dataset = ImageFolder(args.dataset, split="test", transform=test_transforms, num_images=args.num_images_val)
-    test_dataset = TestKodakDataset(data_dir="/scratch/dataset/kodak")
+    valid_dataset = ImageFolder(args.dataset, split="val", transform=test_transforms, num_images=args.num_images_val)
+    test_dataset = TestKodakDataset(data_dir=os.path.join(args.dataset, "test/data"))
     device = "cuda" 
 
     train_dataloader = DataLoader(
@@ -271,8 +271,12 @@ def main(argv):
             architecture =   models[args.model]
             checkpoint = torch.load(args.path_adapter, map_location=device)
 
-            factorized_configuration =checkpoint["factorized_configuration"]
+            factorized_configuration = checkpoint["factorized_configuration"]
             gaussian_configuration =  checkpoint["gaussian_configuration"]
+            
+            if isinstance(factorized_configuration, list): factorized_configuration = factorized_configuration[0]
+            if isinstance(gaussian_configuration, list): gaussian_configuration = gaussian_configuration[0]
+
             if args.adapt:
                 factorized_configuration["beta"] = 10
                 factorized_configuration["trainable"] = True
@@ -286,10 +290,10 @@ def main(argv):
                 gaussian_configuration["annealing"] = args.gauss_annealing
                 gaussian_configuration["gap_factor"] = args.gauss_gp
 
-            net =architecture(192, 320, factorized_configuration = factorized_configuration, gaussian_configuration = gaussian_configuration)
+            net =architecture(192, 320, factorized_configuration = [factorized_configuration], gaussian_configuration = [gaussian_configuration])
             net = net.to(device)              
             net.update( device = device)
-            net.load_state_dict(checkpoint["state_dict"])  
+            net.load_state_dict(checkpoint["state_dict"], gauss_up=False)  
             print("**************************************************************************************************************") 
             print("**************************************************************************************************************")  
             net.entropy_bottleneck.sos.update_state(device = device )
@@ -561,7 +565,7 @@ def main(argv):
         
 
 if __name__ == "__main__":
-    wandb.init(project="NeuralADQ_zou2022_A2_sections", entity="albertopresta")   
+    wandb.init(project="PIBIC-StanH-CNN-XRAY")   
     main(sys.argv[1:])
 
 
