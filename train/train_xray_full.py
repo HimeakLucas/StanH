@@ -1,5 +1,5 @@
 """
-Option 1 (upper-bound diagnostic): FULL fine-tune on X-ray for a single lambda.
+Upper-bound diagnostic: FULL fine-tune on X-ray for a single lambda.
 
 Unlike train_xray_stanh.py (which freezes the backbone and trains only the ~320
 STanH params), this UNFREEZES the whole WACNN backbone and fine-tunes everything,
@@ -100,6 +100,13 @@ def main():
                         "frozen anchor, instead of the full ~301 MB checkpoint. The frozen backbone "
                         "is shared (one anchor copy); eval reconstructs the full model = anchor + delta. "
                         "No-op savings for --mode full (everything is trainable).")
+    p.add_argument("--replay_dataset", type=str, default="",
+                   help="Natural-image dataset dir (ImageFolder layout) for knowledge replay. "
+                        "Each step adds a replay batch to the loss, anchoring the source domain "
+                        "(anti-forgetting, cf. Duan et al. CVPR'24). MUST NOT be the cross-domain "
+                        "eval set (Kodak) — that would leak into training.")
+    p.add_argument("--replay_alpha", type=float, default=0.8,
+                   help="Weight of the DOMAIN loss; the replay loss gets (1 - alpha).")
     p.add_argument("--save_dir", type=str, default="models/xray_full_finetuning")
     p.add_argument("--wandb_project", type=str, default="PIBIC_StanH_XRay_v5_fullft")
     p.add_argument("--val_images", type=int, default=24)
@@ -115,6 +122,14 @@ def main():
     train_dl = DataLoader(train_ds, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True, pin_memory=True)
     val_ds = ImageFolder(args.dataset, num_images=args.val_images, split="val", transform=val_tf)
     val_dl = DataLoader(val_ds, batch_size=1, num_workers=args.num_workers, shuffle=False)
+
+    replay_dl = None
+    if args.replay_dataset:
+        replay_ds = ImageFolder(args.replay_dataset, split="train", transform=train_tf)
+        replay_dl = DataLoader(replay_ds, batch_size=args.batch_size, num_workers=2,
+                               shuffle=True, pin_memory=True)
+        print(f"Replay: {len(replay_ds)} images from {args.replay_dataset}, "
+              f"loss = {args.replay_alpha}*domain + {1-args.replay_alpha:.2f}*replay")
 
     checkpoint = torch.load(args.anchor, map_location=device, weights_only=False)
     fact_cfg = dict(checkpoint["factorized_configuration"][0])
@@ -178,7 +193,8 @@ def main():
             if st.get("is_delta"):
                 # model already holds the anchor + warm-started STanH; overlay the delta.
                 merged = model.state_dict()
-                merged.update({k: v.to(device) for k, v in st["delta"].items()})
+                merged.update({k: v.to(device=device, dtype=merged[k].dtype)
+                               for k, v in st["delta"].items() if k in merged})
                 model.load_state_dict(merged, state_dicts_stanh=None)
             else:
                 model.load_state_dict(st["state_dict"], state_dicts_stanh=None)
@@ -212,10 +228,11 @@ def main():
         }
         if args.save_delta and args.mode != "full":
             # Store only the trainable tensors; the frozen backbone is the shared anchor.
+            # fp16 halves the delta (~28 MB -> ~14 MB); loaders cast back to the model dtype.
             state["is_delta"] = True
             state["anchor"] = args.anchor
             state["mode"] = args.mode
-            state["delta"] = {k: full_sd[k].cpu() for k in trainable_names if k in full_sd}
+            state["delta"] = {k: full_sd[k].detach().cpu().half() for k in trainable_names if k in full_sd}
         else:
             state["state_dict"] = full_sd
         # Atomic write: a crash mid-save leaves the previous valid checkpoint intact.
@@ -230,13 +247,25 @@ def main():
             cur_beta = min(args.beta_min + args.beta_step * epoch, args.beta_max)
             model.gaussian_conditional[0].sos.beta = cur_beta
             model.entropy_bottleneck[0].sos.beta = cur_beta
-        ep_loss = ep_bpp = ep_mse = 0.0
+        ep_loss = ep_bpp = ep_mse = ep_replay = 0.0
+        replay_iter = iter(replay_dl) if replay_dl is not None else None
         for i, d in enumerate(train_dl):
             d = d.to(device)
             optimizer.zero_grad()
             out_net = model(d, training=True, stanh_level=0)
             oc = criterion(out_net, d)
-            oc["loss"].backward()
+            if replay_iter is not None:
+                try:
+                    r = next(replay_iter)
+                except StopIteration:
+                    replay_iter = iter(replay_dl); r = next(replay_iter)
+                r = r.to(device)
+                oc_r = criterion(model(r, training=True, stanh_level=0), r)
+                total = args.replay_alpha * oc["loss"] + (1.0 - args.replay_alpha) * oc_r["loss"]
+                ep_replay += oc_r["loss"].item()
+            else:
+                total = oc["loss"]
+            total.backward()
             if args.clip_max_norm > 0:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip_max_norm)
             optimizer.step()
@@ -262,9 +291,12 @@ def main():
             float(annealing_y.beta_max) if annealing_y is not None else 0.0)
         print(f"==== Epoch {epoch} | train {ep_loss:.4f} | VAL {val_loss:.4f} | bpp {ep_bpp:.4f} | "
               f"val_psnr {val_psnr:.2f} | beta {bmy:.0f} | lr_bb {optimizer.param_groups[0]['lr']:.1e}")
-        wandb.log({"epoch": epoch, "train_loss": ep_loss, "val_loss": val_loss, "train_mse": ep_mse,
-                   "val_mse": val_mse, "train_psnr": train_psnr, "val_psnr": val_psnr, "bpp": ep_bpp,
-                   "val_bpp": val_bpp, "beta_max_y": bmy, "lr_backbone": optimizer.param_groups[0]["lr"]})
+        log = {"epoch": epoch, "train_loss": ep_loss, "val_loss": val_loss, "train_mse": ep_mse,
+               "val_mse": val_mse, "train_psnr": train_psnr, "val_psnr": val_psnr, "bpp": ep_bpp,
+               "val_bpp": val_bpp, "beta_max_y": bmy, "lr_backbone": optimizer.param_groups[0]["lr"]}
+        if replay_dl is not None:
+            log["replay_loss"] = ep_replay / nb
+        wandb.log(log)
 
         save(epoch, val_loss)
         if val_loss < best_val:
