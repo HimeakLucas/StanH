@@ -5,7 +5,7 @@
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-EPOCHS=20; BATCH=8; DATASET="datasets/documents"; PATCH=256
+EPOCHS=20; BATCH=16; DATASET="datasets/documents"; PATCH=256  # batch 16 on RTX 4090 (24GB)
 DERIV_DIR="models/original_paper/STanH/derivations"
 DERIVS=("D02-A040" "D03-A040" "D10-A040" "D11-A040" "D11-A040" "D12-A040" "D13-A040" "D13-A040")
 LAMBDAS=("0.003"   "0.00666"  "0.02"     "0.04"     "0.06305"  "0.13"     "0.25"     "0.44014")
