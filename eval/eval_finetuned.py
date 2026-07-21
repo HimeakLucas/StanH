@@ -67,7 +67,9 @@ def main():
     device = args.device
     print(f"Using device: {device}")
 
-    image_files = sorted(glob.glob(os.path.join(args.dataset, "*.png")))
+    EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+    image_files = sorted(f for f in glob.glob(os.path.join(args.dataset, "*"))
+                         if f.lower().endswith(EXTS))
     if args.limit and args.limit > 0:
         image_files = image_files[:args.limit]
     print(f"Evaluating on {len(image_files)} images from {args.dataset}")
@@ -89,7 +91,9 @@ def main():
     model.load_state_dict(anchor_ckpt["state_dict"], state_dicts_stanh=None)
     model.eval()
 
-    results = {"lambdas": [], "bpp": [], "psnr": [], "ms-ssim": []}
+    # per_image enables bootstrapped BD-Rate confidence intervals downstream
+    results = {"lambdas": [], "bpp": [], "psnr": [], "ms-ssim": [],
+               "files": [os.path.basename(f) for f in image_files], "per_image": {}}
     seen_w = []
 
     for ckpt_path in model_paths:
@@ -106,6 +110,7 @@ def main():
         seen_w.append(round(sd["gaussian_conditional"]["w"].detach().float().mean().item(), 6))
 
         avg_bpp, avg_psnr, avg_mssim = 0, 0, 0
+        im_bpp, im_psnr = [], []
         for img_path in image_files:
             x = read_image(img_path).unsqueeze(0).to(device)
             h, w = x.size(2), x.size(3)
@@ -131,9 +136,12 @@ def main():
             avg_bpp += bpp
             avg_psnr += metrics["psnr"]
             avg_mssim += -10 * math.log10(1 - metrics["ms-ssim"])
+            im_bpp.append(bpp)
+            im_psnr.append(metrics["psnr"])
 
         n = len(image_files)
         avg_bpp, avg_psnr, avg_mssim = avg_bpp / n, avg_psnr / n, avg_mssim / n
+        results["per_image"][name] = {"bpp": im_bpp, "psnr": im_psnr}
         results["lambdas"].append(name)
         results["bpp"].append(avg_bpp)
         results["psnr"].append(avg_psnr)

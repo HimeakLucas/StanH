@@ -119,7 +119,9 @@ def main():
         print("WARNING: all derivations produced identical STanH weights — "
               "loading is likely broken (results would be meaningless).")
 
-    image_files = sorted(glob.glob(os.path.join(args.dataset, "*.png")))
+    EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+    image_files = sorted(f for f in glob.glob(os.path.join(args.dataset, "*"))
+                         if f.lower().endswith(EXTS))
     if args.limit and args.limit > 0:
         image_files = image_files[:args.limit]
     print(f"Evaluating on {len(image_files)} images from {args.dataset}")
@@ -127,10 +129,13 @@ def main():
     print(f"Mode: {mode}")
 
     results_bpp, results_psnr, results_mssim = [], [], []
+    # raw per-image metrics, so BD-Rate uncertainty can be bootstrapped downstream
+    per_image = {}
 
     for level_idx in range(len(stanh_paths)):
         print(f"\n--- Testing Level {level_idx} ({stanh_files[level_idx]}) ---")
         avg_bpp, avg_psnr, avg_mssim = 0, 0, 0
+        im_bpp, im_psnr = [], []
 
         for idx, img_path in enumerate(image_files):
             x = read_image(img_path).unsqueeze(0).to(args.device)
@@ -163,7 +168,10 @@ def main():
             avg_bpp += bpp
             avg_psnr += metrics["psnr"]
             avg_mssim += -10 * math.log10(1 - metrics["ms-ssim"])
+            im_bpp.append(bpp)
+            im_psnr.append(metrics["psnr"])
 
+        per_image[stanh_files[level_idx]] = {"bpp": im_bpp, "psnr": im_psnr}
         n = len(image_files)
         avg_bpp, avg_psnr, avg_mssim = avg_bpp / n, avg_psnr / n, avg_mssim / n
         print(f"\n  Average -> BPP: {avg_bpp:.4f}, PSNR: {avg_psnr:.3f} dB")
@@ -176,6 +184,8 @@ def main():
         "bpp": results_bpp,
         "psnr": results_psnr,
         "ms-ssim": results_mssim,
+        "files": [os.path.basename(f) for f in image_files],
+        "per_image": per_image,
     }
     with open(args.out_json, "w") as f:
         json.dump(out_data, f, indent=4)

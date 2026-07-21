@@ -1,5 +1,5 @@
 """
-Evaluate FULL fine-tuned models (option 1, train/train_xray_full.py) on a test set.
+Evaluate FULL fine-tuned models (train/train_xray_full.py) on a test set.
 
 Unlike eval_finetuned.py (which loads one frozen anchor and only swaps the STanH
 layer), here every checkpoint is a complete model with its OWN backbone, so we
@@ -57,7 +57,9 @@ def main():
             _anchor_sd["sd"] = ac["state_dict"]
         return _anchor_sd["sd"]
 
-    image_files = sorted(glob.glob(os.path.join(args.dataset, "*.png")))
+    EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+    image_files = sorted(f for f in glob.glob(os.path.join(args.dataset, "*"))
+                         if f.lower().endswith(EXTS))
     if args.limit and args.limit > 0:
         image_files = image_files[:args.limit]
     print(f"Evaluating on {len(image_files)} images from {args.dataset}")
@@ -67,7 +69,10 @@ def main():
         print(f"No '*_best.pth.tar' in {args.models_dir}."); return
     print(f"Found {len(model_paths)} full models: {[os.path.basename(m) for m in model_paths]}")
 
-    results = {"lambdas": [], "bpp": [], "psnr": [], "ms-ssim": []}
+    # per_image keeps the raw per-image metrics so BD-Rate uncertainty can be
+    # bootstrapped over images downstream (aggregates alone can't be resampled).
+    results = {"lambdas": [], "bpp": [], "psnr": [], "ms-ssim": [],
+               "files": [os.path.basename(f) for f in image_files], "per_image": {}}
     for ckpt_path in model_paths:
         name = os.path.basename(ckpt_path).replace("_best.pth.tar", "")
         ck = torch.load(ckpt_path, map_location=device, weights_only=False)
@@ -81,7 +86,8 @@ def main():
             # Reconstruct full model = shared frozen anchor + this derivation's small delta.
             model.load_state_dict(anchor_state(), state_dicts_stanh=None)
             merged = model.state_dict()
-            merged.update({k: v.to(device) for k, v in ck["delta"].items()})
+            merged.update({k: v.to(device=device, dtype=merged[k].dtype)
+                           for k, v in ck["delta"].items() if k in merged})
             model.load_state_dict(merged, state_dicts_stanh=None)
             print(f"  [delta] {name}: {len(ck['delta'])} tensors over anchor ({ck.get('mode')})")
         else:
@@ -90,6 +96,7 @@ def main():
         model.eval()
 
         avg_bpp = avg_psnr = avg_mssim = 0.0
+        im_bpp, im_psnr = [], []
         for img_path in image_files:
             x = read_image(img_path).unsqueeze(0).to(device)
             h, w = x.size(2), x.size(3)
@@ -113,8 +120,10 @@ def main():
                 torch.cuda.empty_cache()
             avg_bpp += bpp; avg_psnr += metrics["psnr"]
             avg_mssim += -10 * math.log10(1 - metrics["ms-ssim"])
+            im_bpp.append(bpp); im_psnr.append(metrics["psnr"])
 
         n = len(image_files)
+        results["per_image"][name] = {"bpp": im_bpp, "psnr": im_psnr}
         results["lambdas"].append(name)
         results["bpp"].append(avg_bpp / n)
         results["psnr"].append(avg_psnr / n)
