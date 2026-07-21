@@ -1,5 +1,5 @@
 #!/bin/bash
-# Waits for the full fine-tune sweep (option 1) to finish, then evaluates the
+# Waits for the full fine-tune sweep to finish, then evaluates the
 # full models on X-ray + Kodak and runs the BD-Rate analysis + plot.
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"

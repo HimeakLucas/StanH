@@ -1,5 +1,5 @@
 #!/bin/bash
-# Option 1 (upper-bound): FULL fine-tune on X-ray for 2 bracketing rate points,
+# Upper-bound: FULL fine-tune on X-ray for 2 bracketing rate points,
 # each warm-started from the matching authors' generic derivation. Measures the
 # maximum domain gain available when the backbone is also unfrozen.
 export PYTHONPATH=src
