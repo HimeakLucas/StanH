@@ -92,9 +92,10 @@ def main():
     p.add_argument("--dataset", type=str, default="datasets/xrays")
     p.add_argument("--anchor", type=str, default="models/original_paper/STanH/anchor/0728_last_.pth.tar")
     p.add_argument("--init_stanh", type=str, default=None, help="Generic derivation to warm-start STanH from")
-    p.add_argument("--mode", choices=["full", "decoder", "encoder"], default="full",
+    p.add_argument("--mode", choices=["full", "decoder", "encoder", "encoder_hyper"], default="full",
                    help="full = whole backbone (v6); decoder = only g_s + STanH (v7); "
-                        "encoder = only g_a + STanH (v8, isolates the latent-defining transform)")
+                        "encoder = only g_a + STanH (v8, isolates the latent-defining transform); "
+                        "encoder_hyper = g_a + rate model (hyperprior + context) + STanH, decoder frozen")
     p.add_argument("--save_delta", action="store_true",
                    help="Save ONLY the trainable (requires_grad) params as a small delta over the "
                         "frozen anchor, instead of the full ~301 MB checkpoint. The frozen backbone "
@@ -166,6 +167,18 @@ def main():
         # mid/high-rate gain and the rate-range extension come from the encoder.
         model.freeze_net()
         model.unfreeze_encoder()
+        model.unfreeze_quantizer()
+    elif args.mode == "encoder_hyper":
+        # Encoder + hyperprior: g_a plus the hyperprior transforms (h_a, h_mean_s,
+        # h_scale_s) + STanH. The heavy channel-context/lrp transforms AND the
+        # decoder g_s stay frozen, so this stays a light adapter (~22M) over the
+        # encoder-only variant. Tests whether letting the hyperprior re-estimate the
+        # domain's latent distribution removes the encoder-only low-rate penalty.
+        model.freeze_net()
+        model.unfreeze_encoder()
+        for mod in (model.h_a, model.h_mean_s, model.h_scale_s):
+            for p in mod.parameters():
+                p.requires_grad = True
         model.unfreeze_quantizer()
     else:
         raise ValueError(f"unknown --mode {args.mode}")
