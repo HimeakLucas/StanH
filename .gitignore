@@ -5,6 +5,13 @@ logs/
 # Local tooling / agent state
 .claude/
 
+# Local-only working context (notes, references, drafts). Not versioned.
+CLAUDE.md
+/notas/
+/docs/
+/refs/
+/MIGRATION.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
