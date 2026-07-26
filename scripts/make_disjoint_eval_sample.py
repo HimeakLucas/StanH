@@ -1,6 +1,8 @@
 """
 Leakage-free evaluation sample: like make_eval_sample.py, but restricted to test
-images whose patient/volume GROUP does not appear in the training split.
+images whose patient/volume GROUP appears in neither the training nor the
+validation split. Validation selects the checkpoint, so a group seen there leaks
+into the reported number too.
 
 prepare_domain_split.py shuffles a single pool, so sibling images land on both
 sides: adjacent OCT B-scans of the same volume, or both eyes of the same patient.
@@ -54,23 +56,25 @@ def main():
         raise SystemExit("need --domain, or both --root and --group_regex")
 
     train_dir = os.path.join(root, "train", "data")
+    val_dir = os.path.join(root, "val", "data")
     test_dir = os.path.join(root, "test", "data")
     out_dir = os.path.join(root, "test")
     manifest = os.path.join(out_dir, args.manifest)
     sample_dir = os.path.join(out_dir, args.sample_dir)
 
-    train_groups = {g for g in (group_of(f, rx) for f in list_images(train_dir)) if g}
+    fitted = list_images(train_dir) + (list_images(val_dir) if os.path.isdir(val_dir) else [])
+    fitted_groups = {g for g in (group_of(f, rx) for f in fitted) if g}
     test_files = list_images(test_dir)
     ungrouped = [f for f in test_files if group_of(f, rx) is None]
     if ungrouped:
         raise SystemExit(f"{len(ungrouped)} test files did not match the regex, e.g. {ungrouped[:3]}")
 
-    clean = [f for f in test_files if group_of(f, rx) not in train_groups]
+    clean = [f for f in test_files if group_of(f, rx) not in fitted_groups]
     test_groups = {group_of(f, rx) for f in test_files}
     clean_groups = {group_of(f, rx) for f in clean}
     leaked_groups = test_groups - clean_groups
     print(f"[{root}] test images {len(test_files)} in {len(test_groups)} groups")
-    print(f"  groups also seen in train (LEAKED): {len(leaked_groups)} "
+    print(f"  groups also seen in train/val (LEAKED): {len(leaked_groups)} "
           f"({100*len(leaked_groups)/max(len(test_groups),1):.0f}%)")
     print(f"  clean images available: {len(clean)} in {len(clean_groups)} groups")
 
