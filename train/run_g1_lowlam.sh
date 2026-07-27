@@ -1,7 +1,7 @@
 #!/bin/bash
-# Isolates the cause of the low-rate penalty of
-# the X-ray encoder / encoder+hyperprior adapters by separating the two variables the
-# original spec confounded: the warm-start derivation and beta_min.
+# Isolates the cause of the low-rate penalty of the X-ray encoder and
+# encoder+hyperprior adapters by separating the two variables that earlier runs
+# confounded: the warm-start derivation and beta_min.
 #
 #   baseline (already trained)  lambda 0.003->D02, 0.00666->D03, beta_min 30
 #   arm A                       warm-start shifted down (D01/D02), beta_min 30
