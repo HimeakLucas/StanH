@@ -19,14 +19,14 @@ say() { echo "[$(date '+%F %T')] $*" | tee -a "$LOG"; }
 say "P1 start: leakage-free re-eval (OCT volume-disjoint, retina patient-disjoint)"
 
 # ---------- OCT ----------
-OCT_S="datasets/oct/test/sample_eval_disjoint"
+OCT_S="datasets/oct/test/sample_eval_disjoint_v2"
 say "OCT generic baseline on disjoint sample"
 python -u eval/evaluate_xray.py --dataset "$OCT_S" --limit "$N" --entropy_estimation \
-    --out_json results/oct_generic_disjoint_rd.json >> "$LOG" 2>&1
+    --out_json results/oct_generic_disjoint_v2_rd.json >> "$LOG" 2>&1
 for m in encoder decoder; do
   say "OCT $m on disjoint sample"
   python -u eval/eval_full.py --models_dir "models/oct_${m}" --dataset "$OCT_S" --limit "$N" \
-      --entropy_estimation --out_json "results/oct_${m}_on_oct_disjoint_rd.json" >> "$LOG" 2>&1
+      --entropy_estimation --out_json "results/oct_${m}_on_oct_disjoint_v2_rd.json" >> "$LOG" 2>&1
 done
 
 # ---------- RETINA ----------
@@ -59,8 +59,8 @@ cmp_one() {  # domain tag mode old_target new_target cross old_baseline new_base
 
 say "=== COMPARACAO ANTES x DEPOIS ==="
 for m in encoder decoder; do
-  cmp_one oct "$m" "results/oct_${m}_on_oct_rd.json" "results/oct_${m}_on_oct_disjoint_rd.json" \
-      "results/oct_${m}_on_cross_rd.json" results/oct_generic_rd.json results/oct_generic_disjoint_rd.json
+  cmp_one oct "$m" "results/oct_${m}_on_oct_rd.json" "results/oct_${m}_on_oct_disjoint_v2_rd.json" \
+      "results/oct_${m}_on_cross_rd.json" results/oct_generic_rd.json results/oct_generic_disjoint_v2_rd.json
 done
 for m in encoder decoder encoder_hyper; do
   case "$m" in
