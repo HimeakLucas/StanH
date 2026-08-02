@@ -71,6 +71,20 @@ CURVES = {
                       rgb_ref="results/oct_decoder_on_cross_rd.json"),
     "replay":    dict(kind="ckpt", models_dir="models/documents_decoder_replay",
                       rgb_ref="results/documents_decoder_replay_on_cross_rd.json"),
+    # Bracos do controle de monocromia (G4, 28/07) e o terceiro braco (B1, 30/07).
+    # NAO entram no ORDER: `analyze` compara os seis DOMINIOS, e estes sao controles
+    # sinteticos sobre DIV2K, cujo valor absoluto nao e comparavel com os dominios
+    # (700 imgs x 229 epocas contra 8000 x 20). So o contraste entre bracos e medicao.
+    "div2k_color":  dict(kind="ckpt", models_dir="models/div2k_color_decoder",
+                         rgb_ref="results/div2k_color_decoder_on_cross_rd.json"),
+    "div2k_gray":   dict(kind="ckpt", models_dir="models/div2k_gray_decoder",
+                         rgb_ref="results/div2k_gray_decoder_on_cross_rd.json"),
+    "div2k_decorr": dict(kind="ckpt", models_dir="models/div2k_decorr_decoder",
+                         rgb_ref="results/div2k_decorr_decoder_on_cross_rd.json"),
+    # Replay no OCT (B2, 30/07): segundo dominio do antidoto, para testar se o
+    # MECANISMO medido em documentos pelo M0-6 se repete no pior colapso do estudo.
+    "oct_replay":   dict(kind="ckpt", models_dir="models/oct_decoder_replay",
+                         rgb_ref="results/oct_decoder_replay_on_cross_rd.json"),
 }
 
 # Ordering of the forgetting rule (light regime first). `replay` is not part of
