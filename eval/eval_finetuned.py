@@ -110,7 +110,7 @@ def main():
         seen_w.append(round(sd["gaussian_conditional"]["w"].detach().float().mean().item(), 6))
 
         avg_bpp, avg_psnr, avg_mssim = 0, 0, 0
-        im_bpp, im_psnr = [], []
+        im_bpp, im_psnr, im_mssim = [], [], []
         for img_path in image_files:
             x = read_image(img_path).unsqueeze(0).to(device)
             h, w = x.size(2), x.size(3)
@@ -138,10 +138,13 @@ def main():
             avg_mssim += -10 * math.log10(1 - metrics["ms-ssim"])
             im_bpp.append(bpp)
             im_psnr.append(metrics["psnr"])
+            im_mssim.append(-10 * math.log10(1 - metrics["ms-ssim"]))
 
         n = len(image_files)
         avg_bpp, avg_psnr, avg_mssim = avg_bpp / n, avg_psnr / n, avg_mssim / n
-        results["per_image"][name] = {"bpp": im_bpp, "psnr": im_psnr}
+        # ms-ssim (in dB, same convention as the aggregate) is stored per image too, so
+        # BD-Rate over MS-SSIM can be bootstrapped like the PSNR one.
+        results["per_image"][name] = {"bpp": im_bpp, "psnr": im_psnr, "ms-ssim": im_mssim}
         results["lambdas"].append(name)
         results["bpp"].append(avg_bpp)
         results["psnr"].append(avg_psnr)

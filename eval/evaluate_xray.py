@@ -135,7 +135,7 @@ def main():
     for level_idx in range(len(stanh_paths)):
         print(f"\n--- Testing Level {level_idx} ({stanh_files[level_idx]}) ---")
         avg_bpp, avg_psnr, avg_mssim = 0, 0, 0
-        im_bpp, im_psnr = [], []
+        im_bpp, im_psnr, im_mssim = [], [], []
 
         for idx, img_path in enumerate(image_files):
             x = read_image(img_path).unsqueeze(0).to(args.device)
@@ -170,8 +170,11 @@ def main():
             avg_mssim += -10 * math.log10(1 - metrics["ms-ssim"])
             im_bpp.append(bpp)
             im_psnr.append(metrics["psnr"])
+            im_mssim.append(-10 * math.log10(1 - metrics["ms-ssim"]))
 
-        per_image[stanh_files[level_idx]] = {"bpp": im_bpp, "psnr": im_psnr}
+        # ms-ssim (in dB, same convention as the aggregate) is stored per image too, so
+        # BD-Rate over MS-SSIM can be bootstrapped like the PSNR one.
+        per_image[stanh_files[level_idx]] = {"bpp": im_bpp, "psnr": im_psnr, "ms-ssim": im_mssim}
         n = len(image_files)
         avg_bpp, avg_psnr, avg_mssim = avg_bpp / n, avg_psnr / n, avg_mssim / n
         print(f"\n  Average -> BPP: {avg_bpp:.4f}, PSNR: {avg_psnr:.3f} dB")
