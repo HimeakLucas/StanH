@@ -58,7 +58,7 @@ EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
 # group(1) is the patient/volume id. Matched against the BASENAME.
 GROUP_PRESETS = {
     "xrays":  r"^(\d+)_",                 # 00000181_061.png -> 00000181
-    "oct":    r"^([A-Za-z]+-\d+)-",       # CNV-1016042-3.jpeg -> CNV-1016042
+    "oct":    r"^[A-Za-z]+-(\d+)-",         # CNV-1016042-3.jpeg -> 1016042 (paciente)
     "retina": r"(\d+)_(?:left|right)",    # ..._10015_left.jpeg -> 10015
 }
 

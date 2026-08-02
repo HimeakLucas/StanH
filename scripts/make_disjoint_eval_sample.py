@@ -24,7 +24,7 @@ EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
 
 PRESETS = {
     # domain: (root, regex capturing the group id)
-    "oct":    ("datasets/oct",    r"^([A-Za-z]+-\d+)-"),
+    "oct":    ("datasets/oct",    r"^[A-Za-z]+-(\d+)-"),
     "retina": ("datasets/retina", r"(\d+)_(?:left|right)"),
 }
 
