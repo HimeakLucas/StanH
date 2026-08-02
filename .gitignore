@@ -8,6 +8,7 @@ logs/
 # Local-only working context (notes, references, drafts). Not versioned.
 CLAUDE.md
 /notas/
+/parecer/
 /docs/
 /refs/
 /MIGRATION.md
