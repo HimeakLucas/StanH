@@ -85,6 +85,10 @@ CURVES = {
     # MECANISMO medido em documentos pelo M0-6 se repete no pior colapso do estudo.
     "oct_replay":   dict(kind="ckpt", models_dir="models/oct_decoder_replay",
                          rgb_ref="results/oct_decoder_replay_on_cross_rd.json"),
+    # Replay no raio-X: terceiro dominio do antidoto, e o unico em que ele cobra
+    # preco no alvo. Fecha o mecanismo em n=3, igualando-o a cobertura do efeito.
+    "xray_replay":  dict(kind="ckpt", models_dir="models/xray_decoder_replay",
+                         rgb_ref="results/_exp_01ago/xray_decoder_replay_on_cross_rd.json"),
 }
 
 # Ordering of the forgetting rule (light regime first). `replay` is not part of
