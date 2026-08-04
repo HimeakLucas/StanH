@@ -166,6 +166,14 @@ def read_image(fp):
     return transforms.ToTensor()(Image.open(fp).convert("RGB"))
 
 
+def save_recon(x_hat, path):
+    """Dump one reconstruction as PNG, with the same quantisation the metrics use
+    (255x, clamp, round), so the image shown is the image that was measured."""
+    a = (x_hat[0] * 255).clamp(0, 255).round().byte().permute(1, 2, 0).cpu().numpy()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    Image.fromarray(a).save(path)
+
+
 # --------------------------------------------------------------- decompose ---
 def build_generic(device):
     """Anchor backbone + the authors' external STanH derivations (one level each),
@@ -269,6 +277,9 @@ def run_curve(name, args):
                     bpp = sum((torch.log(l).sum() / (-math.log(2) * npx))
                               for l in out["likelihoods"].values()).item()
                 met = channel_metrics(x, out["x_hat"], mat)
+            if getattr(args, "save_recon", None):
+                save_recon(out["x_hat"], os.path.join(
+                    ROOT, args.save_recon, name, f"{label}__{os.path.basename(fp)}"))
             if device == "cuda":
                 torch.cuda.empty_cache()
             rows["bpp"].append(bpp)
@@ -508,6 +519,10 @@ def main():
                    help="arithmetic coding instead of the default entropy estimation "
                         "(the published cross curves use entropy estimation)")
     d.add_argument("--out_dir", default="results")
+    d.add_argument("--save_recon", default=None,
+                   help="directory to also dump each reconstruction as PNG "
+                        "(<dir>/<curve>/<level>__<image>.png); for qualitative figures, "
+                        "so the image shown is the one that produced the numbers")
     d.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
 
     a = sub.add_parser("analyze", help="matched-bpp deltas, gaps and the 24/07 confrontation")
