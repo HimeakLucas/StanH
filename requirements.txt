@@ -1,21 +1,20 @@
-numpy>=1.20.0
-scipy
-matplotlib
-torch>=1.1.0
+# Versions of the environment the results were produced in (conda env, python 3.8.20).
+# torch/torchvision are installed separately with the CUDA build that matches the machine:
+#   pip install torch==2.4.1 torchvision==0.19.1 --index-url https://download.pytorch.org/whl/cu121
+torch==2.4.1
+torchvision==0.19.1
+
+compressai==1.2.8
 pytorch-msssim==0.2.0
-tensorboard
-tqdm
-bd-metric
-ptflops
-wandb
-compressai 
-Ninja
-timm
-einops
-seaborn
-ipywidgets
-psutil
-torchac
-datasets
-huggingface_hub
-kaggle
+timm==1.0.27
+
+numpy==1.24.4
+scipy==1.10.1
+pandas==2.0.3
+pillow==10.4.0
+
+matplotlib==3.7.5
+seaborn==0.13.2
+
+wandb==0.24.2
+ninja==1.13.0        # builds the torchac extension used for arithmetic coding
