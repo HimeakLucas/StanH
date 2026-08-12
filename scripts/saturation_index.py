@@ -1,4 +1,4 @@
-"""A3 / W8 — indice de saturacao calculado SO sobre a curva generica.
+"""Saturation index computed from the GENERIC curve alone.
 
 Motivacao: os rotulos "limitado por taxa" / "limitado por reconstrucao" da regra 2x2
 sao hoje atribuidos DEPOIS de conhecer o vencedor, o que torna a 2x2 uma descricao
@@ -33,7 +33,7 @@ from scipy.interpolate import PchipInterpolator
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Curva generica + curvas adaptadas por dominio, na regua canonica de cada um
+# Generic curve + adapted curves per domain, each on its canonical ruler
 # (disjunta onde ela existe).
 DOMAINS = {
     "raio-X": {
@@ -107,7 +107,7 @@ def bd_rate(bpp_ref, psnr_ref, bpp_test, psnr_test):
 
 
 def boot_bd(ref, test, B=1000, seed=42):
-    """IC 95% do BD-Rate, bootstrap pareado por imagem, + piso da janela (guarda W15)."""
+    """95% BD-Rate CI, per-image paired bootstrap, plus the window floor (first guard)."""
     if "per_image" not in ref or "per_image" not in test:
         return None
     if ref.get("files") != test.get("files"):
@@ -134,7 +134,7 @@ def boot_bd(ref, test, B=1000, seed=42):
 
 
 def terminal_slope_index(bpp, psnr):
-    """Indice PRIMARIO: inclinacao terminal normalizada pela inclinacao media."""
+    """PRIMARY index: terminal slope normalized by the mean slope."""
     b, p = drop_dominated(bpp, psnr)
     if len(b) < 3:
         return None
@@ -151,8 +151,8 @@ def terminal_slope_index(bpp, psnr):
 
 
 def tercile_ratio(bpp, psnr):
-    """Indice SECUNDARIO (robustez): ganho de PSNR no terco superior de bpp sobre o
-    ganho no terco inferior, sobre a curva pos-Pareto reamostrada em log-bpp."""
+    """SECONDARY index (robustness only): PSNR gain in the upper bpp tercile over the gain
+    in the lower one, on the post-Pareto curve resampled in log-bpp."""
     b, p = drop_dominated(bpp, psnr)
     if len(b) < 3:
         return None
@@ -173,17 +173,16 @@ def main():
     args = ap.parse_args()
 
     out = {"generated_by": "scripts/saturation_index.py (A3/W8, 30/07/2026)",
-           "primary_index": ("S = inclinacao terminal / inclinacao media, sobre a curva "
-                             "GENERICA pos-Pareto, em dB por duplicacao de bpp. "
-                             "S->0 saturada (limitada por reconstrucao); "
-                             "S->1 ainda subindo (limitada por taxa)."),
-           "secondary_index": ("R = ganho de PSNR no terco superior de bpp / ganho no terco "
-                               "inferior. Robustez apenas; sem poder de reverter o veredito."),
-           "preregistration": ("Definidos e escritos ANTES de calcular. PASSA se existir "
-                               "limiar em S que separe perfeitamente encoder-vence de "
-                               "decoder-vence, na direcao prevista (S maior => encoder "
-                               "vence). Caso contrario, a 2x2 perde o estatuto preditivo "
-                               "e fica descritiva."),
+           "primary_index": ("S = terminal slope / mean slope over the post-Pareto GENERIC "
+                             "curve, in dB per bpp doubling. S->0 saturated "
+                             "(reconstruction-limited); S->1 still climbing (rate-limited)."),
+           "secondary_index": ("R = PSNR gain in the upper bpp tercile / gain in the lower "
+                               "one. Robustness only; cannot overturn the verdict."),
+           "preregistration": ("defined and written down BEFORE computing. PASSES if some "
+                               "threshold in S perfectly separates encoder-wins from "
+                               "decoder-wins, in the predicted direction (higher S => "
+                               "encoder wins). Otherwise the 2x2 loses predictive status "
+                               "and stays descriptive."),
            "convention": "pontos pos-Pareto (drop_dominated), como no resto da analise",
            "bootstrap": {"B": args.boot, "seed": args.seed},
            "domains": {}}

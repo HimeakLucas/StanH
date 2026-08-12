@@ -1,24 +1,23 @@
-"""A4 / T3.2 — quanto ruido tem o sinal que escolhe o checkpoint?
+"""How noisy is the signal that selects the checkpoint?
 
-A selecao de checkpoint usa a perda de validacao medida em `--val_images` imagens
-(default **24**) em recorte CENTRAL 256x256 (train/train_xray_full.py:113,121,124),
-num split cujos grupos sao majoritariamente compartilhados com o treino. Isso e a
-explicacao mecanistica mais provavel da instabilidade de semente que virou a
-contribuicao (3), e ate hoje era so hipotese.
+Checkpoint selection uses the validation loss measured on `--val_images` images (default
+24) in a CENTRAL 256x256 crop, over a split whose groups are mostly shared with training.
+That is the most likely mechanistic explanation for the seed instability reported in the
+work, and it was only a hypothesis until measured here.
 
-Este script NAO retreina. Ele recarrega os checkpoints `_best` e `_last` ja salvos e
-recomputa a MESMA perda de validacao com o n do treino (24) e com o maximo disponivel,
-para medir se a escolha entre `_best` e `_last` MUDARIA com uma validacao maior.
+This script does NOT retrain. It reloads the saved `_best` and `_last` checkpoints and
+recomputes the SAME validation loss with the training n (24) and with the maximum available,
+to measure whether the choice between `_best` and `_last` WOULD CHANGE under a larger
+validation set.
 
-Reproduz exatamente o caminho do treinador:
-  - mesma perda: lmbda * 255^2 * MSE + bpp        (train_xray_full.py:42-53)
-  - mesmo transform: CenterCrop(256) + ToTensor   (train_xray_full.py:121)
-  - mesma ordem de imagens: ImageFolder pega as `num_images` PRIMEIRAS de
-    `iterdir()` (src/compress/datasets/utils.py), entao n=24 e o mesmo subconjunto
-    que o treino viu
-  - mesmo carregamento de modelo que eval/eval_full.py (ancora + delta ou state_dict)
+It reproduces the trainer path exactly:
+  - same loss: lmbda * 255^2 * MSE + bpp        (train_xray_full.py:42-53)
+  - same transform: CenterCrop(256) + ToTensor  (train_xray_full.py:121)
+  - same image order: ImageFolder takes the FIRST `num_images` of `iterdir()`
+    (src/compress/datasets/utils.py), so n=24 is the subset training saw
+  - same model loading as eval/eval_full.py (anchor + delta, or state_dict)
 
-Uso:
+Usage:
     PYTHONPATH=src python scripts/val_noise.py --out results/_exp_30jul/val_noise.json
 """
 import argparse
@@ -40,8 +39,8 @@ from compress.models.cnn_multiStanh import WACNNMultiSTanH
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANCHOR = "models/original_paper/STanH/anchor/0728_last_.pth.tar"
 
-# Celulas com `_best` E `_last` salvos. Uma de cada regime de checkpoint:
-# `full` grava o modelo inteiro, `encoder` grava delta sobre a ancora.
+# Cells with both `_best` and `_last` saved, one per checkpoint regime: `full` stores the
+# whole model, `encoder` stores a delta over the anchor.
 CELLS = {
     "xray_full_v6_runB": {"dataset": "datasets/xrays", "mode": "full"},
     "xray_encoder_finetuning_v8": {"dataset": "datasets/xrays", "mode": "encoder"},
@@ -120,11 +119,11 @@ def main():
                              transforms.ToTensor()])
 
     out = {"generated_by": "scripts/val_noise.py (A4/T3.2, 30/07/2026)",
-           "question": ("A escolha entre _best e _last mudaria se a validacao usasse "
-                        "todas as imagens em vez das 24 do treino?"),
-           "loss": "lmbda * 255^2 * MSE + bpp, recorte central 256x256 (identica ao treinador)",
-           "note_order": ("ImageFolder toma as num_images PRIMEIRAS de iterdir(), nao uma "
-                          "amostra aleatoria: n=24 e exatamente o subconjunto do treino."),
+           "question": ("would the choice between _best and _last change if validation used "
+                        "every image instead of the 24 seen during training?"),
+           "loss": "lmbda * 255^2 * MSE + bpp, central 256x256 crop (identical to the trainer)",
+           "note_order": ("ImageFolder takes the FIRST num_images of iterdir(), not a random "
+                          "sample: n=24 is exactly the subset training used."),
            "cells": {}}
 
     for cell, cfg in CELLS.items():
@@ -167,11 +166,11 @@ def main():
                 "margin_nall": vals["last_nall"]["loss"] - vals["best_nall"]["loss"],
                 "pick_n24": pick24, "pick_nall": pickall, "flips": pick24 != pickall}
 
-            # A comparacao best x last e um binario grosso: se a margem for larga ela nunca
-            # inverte, e um negativo assim nao mede o RUIDO do sinal, so diz que este par
-            # nao e um caso apertado. O teste direto de T3.2 e outro: quantas vezes a
-            # escolha mudaria se o treino tivesse sorteado OUTRAS 24 imagens de validacao?
-            # Reamostragem SEM reposicao de 24 entre as `n_all`, sobre as perdas por imagem.
+            # best vs last is a coarse binary: a wide margin never flips, and such a
+            # negative does not measure the NOISE of the signal, only that this pair is not
+            # a close call. The direct test is another one: how often would the choice change
+            # had training drawn ANOTHER 24 validation images? Resampling without replacement
+            # of 24 out of `n_all`, over the per-image losses.
             if args.bootstrap > 0 and "best" in per_img and "last" in per_img:
                 pb = np.array(per_img["best"]); pl = np.array(per_img["last"])
                 rng = np.random.default_rng(args.seed)
@@ -183,7 +182,7 @@ def main():
                         flips += 1
                 entry["boot_flip_rate"] = flips / args.bootstrap
                 entry["boot_B"] = args.bootstrap
-                # Efeito no PIOR caso: qual a maior vantagem que `last` chega a mostrar.
+                # Worst-case effect: the largest advantage `last` ever shows.
                 entry["per_image_mean_gap"] = float((pl - pb).mean())
                 entry["per_image_sd_gap"] = float((pl - pb).std(ddof=1))
 

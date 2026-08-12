@@ -1,15 +1,14 @@
-"""BD-Rate com IC bootstrap sobre uma metrica de qualidade ARBITRARIA (PSNR ou MS-SSIM).
+"""BD-Rate with a bootstrap CI over an ARBITRARY quality metric (PSNR or MS-SSIM).
 
-`plots/analyze_finetuned.py` calcula BD-Rate + IC bootstrap pareado por imagem, mas so
-sobre `psnr`, porque ate 30/07 `per_image` guardava so `bpp` e `psnr` (achado N12). Desde o
-A5 os tres avaliadores gravam tambem `ms-ssim` em `per_image`, em dB
-`[arquivo: eval/eval_full.py:126]` -- este script e o leitor generico correspondente.
+`plots/analyze_finetuned.py` computes BD-Rate + per-image paired bootstrap CI, but only over
+`psnr`, because `per_image` used to store just `bpp` and `psnr`. The three evaluators now
+also record `ms-ssim` in `per_image`, in dB; this script is the corresponding generic reader.
 
-Reporta, por celula: BD-Rate, IC 95%, nº de pontos pos-Pareto das duas curvas, janela de
-integracao e o **piso bootstrap da janela** (percentil 2,5), que sao as duas guardas do W15.
+Reports per cell: BD-Rate, 95% CI, number of post-Pareto points of both curves, integration
+window and the bootstrap FLOOR of that window (2.5th percentile) -- the two validity guards.
 
-⚠ O limiar de 1 dB da 1ª guarda foi calibrado em PSNR. Em MS-SSIM-dB ele NAO esta
-calibrado: o script imprime o piso, e nao um veredito.
+The 1 dB threshold of the first guard was calibrated in PSNR. In MS-SSIM-dB it is NOT
+calibrated: the script prints the floor, not a verdict.
 
 Uso:
   python scripts/bd_metric.py --ref results/..._rd.json --metric ms-ssim \
@@ -106,8 +105,9 @@ def main():
         os.makedirs(os.path.dirname(path), exist_ok=True)
         json.dump({"metric": args.metric, "reference": args.ref, "B": args.B,
                    "seed": args.seed, "cells": res,
-                   "warning": ("o limiar de 1 dB da 1a guarda do W15 foi calibrado em PSNR; "
-                               "em MS-SSIM-dB nao esta calibrado -- o piso e reportado, nao julgado")},
+                   "warning": ("the 1 dB threshold of the first guard was calibrated in PSNR; "
+                               "in MS-SSIM-dB it is not calibrated -- the floor is reported, "
+                               "not judged")},
                   open(path, "w"), indent=2, ensure_ascii=False)
         print(f"\n-> {path}")
 

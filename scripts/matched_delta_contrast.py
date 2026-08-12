@@ -1,20 +1,21 @@
-"""ΔPSNR medio casado por bpp -- a "unidade unica" do projeto -- com contraste pareado.
+"""Mean bpp-matched PSNR delta -- the single unit used for cross-domain damage -- with a
+paired contrast.
 
-Para cada ponto da curva testada cuja taxa cai dentro do suporte pos-Pareto da curva de
-referencia, delta = PSNR(teste) - PSNR(referencia @ mesma bpp); a celula reporta a media.
-E a unidade que o projeto usa no Kodak (nunca BD-Rate, que exige janela larga) e que e
-robusta a janela estreita -- por isso e a leitura correta das celulas de 3 lambda.
+For every point of the tested curve whose rate falls inside the post-Pareto support of the
+reference curve, delta = PSNR(test) - PSNR(reference @ same bpp); the cell reports the mean.
+This is the unit used on Kodak (never BD-Rate, which needs a wide window) and it is robust
+to a narrow window, so it is the correct reading of the 3-lambda cells.
 
-Compara DUAS curvas contra a mesma referencia e devolve o contraste no MESMO reamostreio
-bootstrap pareado por imagem (convencao do A1, B1 e B2).
+Compares TWO curves against the same reference and returns the contrast under one shared
+per-image paired bootstrap.
 
-`--lambdas` restringe as duas curvas a uma grade comum: uma celula de 3 lambda so pode ser
-contrastada com os MESMOS 3 lambda da celula de 8 (comparacao like-for-like do B2).
+`--lambdas` restricts both curves to a common grid: a 3-lambda cell may only be contrasted
+against the SAME 3 lambdas of an 8-lambda cell.
 
-⚠ `--common_grid` acrescenta o estimador (c) do Z1 (achado X01-1): as duas curvas
-interpoladas (PCHIP) nos MESMOS bpps. E necessario sempre que o tratamento **desloca a
-taxa**, porque ai o desencontro de suporte e causado pelo proprio tratamento e a diferenca
-de duas medias tomadas em faixas diferentes mistura dano com colocacao de lambda.
+`--common_grid` adds estimator (c): both curves interpolated (PCHIP) at the SAME bpps. It is
+required whenever the treatment SHIFTS THE RATE, because then the support mismatch is caused
+by the treatment itself, and differencing two means taken over different ranges mixes damage
+with lambda placement.
 
 Uso:
   python scripts/matched_delta_contrast.py --ref results/kodak_rd.json \
@@ -51,8 +52,8 @@ def per_level(curve, keep=None):
 
 
 def matched(bt, pt, gb, gp):
-    """Media dos deltas casados + nº de pontos dentro do suporte pos-Pareto da referencia."""
-    br, pr = drop_dominated(gb, gp)  # devolve listas
+    """Mean matched delta + number of points inside the post-Pareto reference support."""
+    br, pr = drop_dominated(gb, gp)  # returns lists
     br, pr = np.asarray(br), np.asarray(pr)
     m = (bt >= br.min()) & (bt <= br.max())
     if not m.any():
@@ -61,7 +62,7 @@ def matched(bt, pt, gb, gp):
 
 
 def pchip_mean(bt, pt, gb, gp, lo, hi, n=200):
-    """Media do delta sobre a grade comum [lo,hi] -- estimador (c) do Z1 (X01-1)."""
+    """Mean delta over the common grid [lo,hi] -- estimator (c)."""
     if not np.isfinite(lo) or not np.isfinite(hi) or hi <= lo:
         return np.nan
     ob, op = drop_dominated(bt, pt)
@@ -76,7 +77,7 @@ def pchip_mean(bt, pt, gb, gp, lo, hi, n=200):
 
 
 def grid_range(gb, gp, ab, bb):
-    """Faixa comum: suporte pos-Pareto da generica interceptado com as duas curvas."""
+    """Common range: post-Pareto generic support intersected with both curves."""
     br, _ = drop_dominated(gb, gp)
     return max(min(br), ab.min(), bb.min()), min(max(br), ab.max(), bb.max())
 
@@ -143,7 +144,7 @@ def run(ref_path, a_spec, b_spec, lambdas, B, seed, bd_ref_path=None, do_grid=Fa
                          "excludes_zero": bool(ci(gc)[0] * ci(gc)[1] > 0)},
         }
 
-    if bd_ref_path:  # BD-Rate da curva "b" no alvo, com as duas guardas do W15
+    if bd_ref_path:  # target BD-Rate of curve "b", with both validity guards
         gen = load(bd_ref_path)
         bd, (blo, bhi) = bd_rate(gen["bpp"], gen["psnr"], Bc["bpp"], Bc["psnr"])
         gkeys = gen.get("levels") or gen.get("lambdas")
@@ -165,8 +166,8 @@ def run(ref_path, a_spec, b_spec, lambdas, B, seed, bd_ref_path=None, do_grid=Fa
             "n_points": len(Bc["bpp"]),
             "guard1_W15_pass": bool(floor >= 1.0),
             "reportable": bool(floor >= 1.0),
-            "note": ("1a guarda do W15: piso bootstrap da janela (percentil 2,5) >= 1 dB. "
-                     "Reprovada => o BD NAO e reportavel; usar o ΔPSNR casado."),
+            "note": ("first guard: bootstrap floor of the window (2.5th percentile) >= 1 dB. "
+                     "Failed => BD is NOT reportable; use the matched PSNR delta."),
         }
     return out, a_name, b_name
 

@@ -1,25 +1,24 @@
-"""Z1 (01/08) -- contrastes cross do C2 sob TRES definicoes de suporte.
+"""Cross-domain contrasts under THREE definitions of matched support.
 
-O "dano cross" do projeto e o ΔPSNR medio casado por bpp no Kodak: para cada ponto da
-curva testada cuja taxa cai dentro do suporte da generica, delta = PSNR(teste) -
-PSNR(generica @ mesma bpp), e a celula reporta a media desses deltas.
+Cross damage here is the mean bpp-matched PSNR delta on Kodak: for every point of the tested
+curve whose rate falls inside the support of the generic curve, delta = PSNR(test) -
+PSNR(generic @ same bpp), and the cell reports the mean of those deltas.
 
-Quando duas celulas do MESMO dominio sao comparadas (encoder x encoder_hyper), essa media
-e tomada sobre conjuntos de pontos DIFERENTES, porque o encoder_hyper retreina o modelo de
-entropia e desloca a taxa: o desencontro de suporte e causado pelo tratamento. Este script
-recomputa os contrastes sob tres estimadores, no mesmo reamostreio bootstrap:
+When two cells of the SAME domain are compared (encoder vs encoder_hyper), that mean is
+taken over DIFFERENT point sets, because encoder_hyper retrains the entropy model and shifts
+the rate: the support mismatch is caused by the treatment. This script recomputes the
+contrasts under three estimators, sharing one bootstrap resampling:
 
-  (a) suporte proprio   -- cada curva sobre os seus pontos dentro do suporte da generica
-                           (o que esta no ledger);
-  (b) faixa restrita    -- o encoder restrito a faixa de bpp dos pontos in-suporte do
-                           encoder_hyper; o encoder_hyper inalterado;
-  (c) grade comum       -- as duas curvas interpoladas (PCHIP) numa grade comum de bpp,
-                           dentro do suporte da generica e da faixa comum as duas.
+  (a) own support    -- each curve over its own points inside the generic support;
+  (b) restricted range -- the encoder restricted to the bpp range of the in-support points
+                       of encoder_hyper; encoder_hyper untouched;
+  (c) common grid    -- both curves interpolated (PCHIP) on a shared bpp grid, inside the
+                       generic support and the range common to both.
 
-Bootstrap pareado por imagem: um unico sorteio de indices por reamostra, aplicado as TRES
-curvas (generica, encoder, encoder_hyper) -- e a mesma convencao do A1/B2.
+Per-image paired bootstrap: one index draw per resample, applied to ALL THREE curves
+(generic, encoder, encoder_hyper).
 
-Uso:
+Usage:
   python scripts/cross_matched_support.py --out results/_exp_01ago/c2_cross_matched_support.json
 """
 import argparse
@@ -31,7 +30,7 @@ from scipy.interpolate import PchipInterpolator
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# dominio -> (curva do encoder, curva do encoder_hyper); referencia comum = kodak_rd.json
+# domain -> (encoder curve, encoder_hyper curve); shared reference = kodak_rd.json
 DOMAINS = {
     "documentos": ("results/documents_encoder_on_cross_rd.json",
                    "results/documents_encoder_hyper_on_cross_rd.json"),
@@ -67,10 +66,10 @@ def per_level(curve):
 
 
 def matched_mean(bt, pt, br, pr, lo=None, hi=None):
-    """Media dos deltas casados dos pontos de (bt,pt) dentro do suporte da referencia.
+    """Mean matched delta over the points of (bt,pt) inside the reference support.
 
-    lo/hi restringem adicionalmente a faixa de bpp considerada (estimador (b)).
-    Devolve (media, mascara dos pontos usados).
+    lo/hi further restrict the bpp range considered (estimator (b)).
+    Returns (mean, mask of the points used).
     """
     gl, gh = br.min(), br.max()
     m = (bt >= gl) & (bt <= gh)
@@ -82,7 +81,7 @@ def matched_mean(bt, pt, br, pr, lo=None, hi=None):
 
 
 def pchip_mean(bt, pt, br, pr, lo, hi, n=200):
-    """Media do delta sobre uma grade comum [lo,hi], as duas curvas por PCHIP."""
+    """Mean delta over a common grid [lo,hi], both curves interpolated by PCHIP."""
     if not np.isfinite(lo) or not np.isfinite(hi) or hi <= lo:
         return np.nan
     ob, op = drop_dominated(bt, pt)          # PCHIP exige x estritamente crescente
@@ -98,7 +97,7 @@ def pchip_mean(bt, pt, br, pr, lo, hi, n=200):
 
 
 def estimators(gb, gp, eb, ep, hb, hp):
-    """Os tres estimadores para uma reamostra. Devolve dict de escalares + diagnostico."""
+    """The three estimators for one resample. Returns a dict of scalars + diagnostics."""
     br, pr = drop_dominated(gb, gp)
     out = {}
 
@@ -108,7 +107,7 @@ def estimators(gb, gp, eb, ep, hb, hp):
     out["a_encoder"], out["a_hyper"] = a_enc, a_hyp
     out["a_contrast"] = a_hyp - a_enc
 
-    # (b) encoder restrito a faixa de bpp dos pontos in-suporte do encoder_hyper
+    # (b) encoder restricted to the bpp range of the in-support encoder_hyper points
     if m_hyp.any():
         lo, hi = hb[m_hyp].min(), hb[m_hyp].max()
         b_enc, m_enc_b = matched_mean(eb, ep, br, pr, lo, hi)

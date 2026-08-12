@@ -1,52 +1,47 @@
-"""B1 — terceiro braco do controle de monocromia: `div2k_decorr`.
+"""Third arm of the color control: `div2k_decorr`.
 
-PROBLEMA. O controle G4 tem dois bracos, `div2k_color` (RGB original) e `div2k_gray`
-(R=G=B), e mostra que a MONOCROMIA BASTA para causar o dano em luma. Ele nao mostra que
-a distancia seja irrelevante, e nao pode: `gray` x `color` diferem numa variavel que E um
-deslocamento de dominio, ao longo exatamente do eixo que o PSNR-RGB mede.
+PROBLEM. The other two arms, `div2k_color` (original RGB) and `div2k_gray` (R=G=B), show
+that MONOCHROME IS ENOUGH to cause the luma damage. They cannot show that domain distance
+is irrelevant: `gray` vs `color` differ in a variable that IS a domain shift, along exactly
+the axis RGB-PSNR measures. The missing arm is a COLORED and DISTANT domain -- chroma
+preserved, statistics displaced:
 
-O braco que falta e um dominio COLORIDO e DISTANTE: preserva croma, desloca a estatistica.
+    arm       chroma  distance | if "it is monochrome"  if "it is distance"
+    color     yes     ~0       | no damage              no damage
+    gray      no      high     | COLLAPSES              collapses
+    decorr    YES     HIGH     | no collapse            COLLAPSES     <- discriminates
 
-    braco     croma   distancia | se "e monocromia"  se "e distancia"
-    color     sim     ~0        | sem dano           sem dano
-    gray      nao     alta      | COLAPSA            colapsa
-    decorr    SIM     ALTA      | sem colapso        COLAPSA        <- discrimina
+TRANSFORM. A single FIXED 3x3 matrix, shared by every image of both splits: the
+Hotelling/PCA (KLT) rotation of the inter-channel covariance, estimated ONCE over a sample
+of the training split and then frozen. It is orthogonal by construction, with det(W) = +1
+forced so it is a proper rotation rather than a reflection. It diagonalizes the channel
+covariance, so the output has DECORRELATED channels -- the statistic furthest from natural
+(where R, G and B correlate ~0.85) without removing any chroma.
 
-TRANSFORMACAO. Uma unica matriz 3x3 FIXA, a mesma para todas as imagens dos dois splits:
-a rotacao de Hotelling/PCA (KLT) da covariancia inter-canal, estimada UMA VEZ sobre uma
-amostra do split de treino e depois congelada. E ortogonal por construcao (autovetores de
-uma matriz simetrica), e forcamos det(W) = +1 para que seja rotacao propria, nao reflexao.
-Ela diagonaliza a covariancia entre canais: a saida tem canais DESCORRELACIONADOS, que e
-a estatistica mais distante da natural (onde R, G e B tem correlacao ~0,85) sem tirar
-croma nenhum.
-
-MAPEAMENTO DE FAIXA — e aqui esta a unica decisao de projeto, declarada:
-uma rotacao do cubo [0,1]^3 nao cai dentro do cubo, entao a saida precisa voltar a faixa.
-Fazemos isso com um afim FIXO POR CANAL, cujos limites sao calculados ANALITICAMENTE dos
-extremos de cada funcional linear sobre o cubo (os extremos de um funcional linear num
-cubo estao nos vertices):
+RANGE MAPPING, the one design decision, declared here: a rotation of the [0,1]^3 cube does
+not land inside the cube, so the output has to be mapped back. This uses a FIXED PER-CHANNEL
+affine whose limits are computed ANALYTICALLY from the extrema of each linear functional
+over the cube (which lie on its vertices):
 
     lo_i = sum_j min(W_ij, 0)      hi_i = sum_j max(W_ij, 0)
-    z_i  = (W x - lo_i) / (hi_i - lo_i)   em [0,1] EXATAMENTE, zero clipping
+    z_i  = (W x - lo_i) / (hi_i - lo_i)   in [0,1] EXACTLY, no clipping
 
-⚠ DESVIO DECLARADO em relacao a "preserve a energia": a escala e POR CANAL, entao o mapa
-e uma rotacao seguida de escalas de eixo diferentes, e nao preserva energia literalmente.
-A alternativa (escala COMUM aos tres canais, que preservaria energia) comprimiria os dois
-eixos de croma para ~10% da faixa de 8 bits, porque a variancia natural de croma na base
-KLT e uma fracao pequena da de luminancia. Isso deixaria o braco `decorr` com dois canais
-quase constantes — isto e, PARECIDO COM O BRACO `gray` exatamente na variavel sob teste —
-alem de introduzir um artefato de quantizacao meu. Escolhi preservar a DESCORRELACAO e a
-PRESENCA DE CROMA, que sao o que o desenho experimental precisa, e declarar a perda de
-isometria. As escalas por canal ficam gravadas no JSON de parametros, para que a magnitude
-do desvio seja auditavel.
+Declared deviation from "preserve energy": the scale is PER CHANNEL, so the map is a
+rotation followed by per-axis scaling and does not preserve energy literally. A scale COMMON
+to the three channels would preserve it, but would squeeze both chroma axes into ~10% of the
+8-bit range (natural chroma variance in the KLT basis is a small fraction of luminance),
+leaving `decorr` with two near-constant channels -- i.e. close to `gray` in exactly the
+variable under test -- and adding a quantization artifact. Decorrelation and chroma presence
+are what the design needs, so those are preserved; the per-channel scales are written to the
+parameter JSON so the size of the deviation stays auditable.
 
-O que NAO se faz: normalizacao por imagem (proibida pelo desenho — tornaria
-a transformacao dependente do conteudo, e o braco deixaria de ser um deslocamento fixo).
+Not done: per-image normalization (forbidden by the design -- it would make the transform
+content-dependent, and the arm would stop being a fixed shift).
 
-PARTICAO: identica a dos outros dois bracos (700/100), lida dos proprios diretorios de
-`div2k_color`, nao re-sorteada.
+SPLIT: identical to the other two arms (700/100), read from the `div2k_color` directories
+rather than re-drawn.
 
-Uso:
+Usage:
     PYTHONPATH=src python scripts/make_div2k_decorr.py
 """
 import argparse
@@ -62,7 +57,7 @@ DST = "datasets/div2k_decorr"
 
 
 def fit_rotation(files, max_pixels_per_image=200_000, seed=42):
-    """Rotacao de Hotelling/PCA da covariancia inter-canal, estimada uma vez."""
+    """Hotelling/PCA rotation of the inter-channel covariance, estimated once."""
     rng = np.random.default_rng(seed)
     acc_n = 0
     acc_sum = np.zeros(3, dtype=np.float64)
@@ -82,13 +77,13 @@ def fit_rotation(files, max_pixels_per_image=200_000, seed=42):
     evals, evecs = np.linalg.eigh(cov)          # simetrica -> evecs ortogonal
     order = np.argsort(evals)[::-1]             # variancia decrescente: PC1 = luminancia
     W = evecs[:, order].T                       # linhas = componentes principais
-    if np.linalg.det(W) < 0:                    # rotacao propria, nao reflexao
+    if np.linalg.det(W) < 0:                    # proper rotation, not a reflection
         W[2, :] *= -1.0
     return W, cov, evals[order], mean
 
 
 def cube_bounds(W):
-    """Extremos exatos de cada canal de saida sobre o cubo [0,1]^3."""
+    """Exact extrema of each output channel over the [0,1]^3 cube."""
     lo = np.minimum(W, 0.0).sum(1)
     hi = np.maximum(W, 0.0).sum(1)
     return lo, hi
@@ -148,11 +143,11 @@ def main():
         "pc_variances": evals.tolist(), "source_channel_mean": mean.tolist(),
         "cube_bounds_lo": lo.tolist(), "cube_bounds_hi": hi.tolist(),
         "per_channel_scale": (hi - lo).tolist(),
-        "declared_deviation": ("escala POR CANAL (nao comum), logo o mapa nao preserva "
-                               "energia literalmente; ver docstring do script para o motivo "
-                               "(escala comum colapsaria os eixos de croma para ~10% da "
-                               "faixa e aproximaria este braco do braco `gray`)"),
-        "clipping": "zero por construcao: limites analiticos exatos sobre o cubo [0,1]^3",
+        "declared_deviation": ("PER-CHANNEL scale (not common), so the map does not preserve "
+                               "energy literally; see the module docstring for why (a common "
+                               "scale would squeeze the chroma axes into ~10% of the range "
+                               "and push this arm towards the `gray` one)"),
+        "clipping": "zero by construction: exact analytic bounds over the [0,1]^3 cube",
     }
 
     for sp, names in splits.items():
