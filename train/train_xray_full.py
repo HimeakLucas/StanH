@@ -92,7 +92,7 @@ def main():
     p.add_argument("--dataset", type=str, default="datasets/xrays")
     p.add_argument("--anchor", type=str, default="models/original_paper/STanH/anchor/0728_last_.pth.tar")
     p.add_argument("--init_stanh", type=str, default=None, help="Generic derivation to warm-start STanH from")
-    p.add_argument("--mode", choices=["full", "decoder", "encoder", "encoder_hyper"], default="full",
+    p.add_argument("--mode", choices=["full", "quantizer", "decoder", "encoder", "encoder_hyper"], default="full",
                    help="full = whole backbone (v6); decoder = only g_s + STanH (v7); "
                         "encoder = only g_a + STanH (v8, isolates the latent-defining transform); "
                         "encoder_hyper = g_a + rate model (hyperprior + context) + STanH, decoder frozen")
@@ -157,6 +157,15 @@ def main():
     if args.mode == "full":
         for prm in model.parameters():
             prm.requires_grad = True
+    elif args.mode == "quantizer":
+        # Só o quantizador paramétrico STanH (w, b), ~320 parâmetros; toda a backbone
+        # congelada. É a forma literal da hipótese do adaptador leve. Existia antes
+        # como script separado (train/train_xray_stanh.py) com grade de lambda, batch
+        # e lr próprios; trazido para cá em 06/08/2026 para que percorra a MESMA grade
+        # de 8 lambdas, os mesmos warm-starts e o mesmo lr_stanh dos demais braços, e
+        # a comparação passe a ser pareada ponto a ponto.
+        model.freeze_net()
+        model.unfreeze_quantizer()
     elif args.mode == "decoder":
         model.freeze_net()
         model.unfreeze_decoder()
