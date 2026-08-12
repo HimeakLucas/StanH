@@ -1,0 +1,74 @@
+{
+  "reference": "results/oct_generic_disjoint_v2_rd.json",
+  "B": 1000,
+  "seed": 42,
+  "lambdas_used": {
+    "oct_sem_replay": [
+      "lambda_0.02",
+      "lambda_0.06305",
+      "lambda_0.25"
+    ],
+    "oct_com_replay": [
+      "lambda_0.02",
+      "lambda_0.06305",
+      "lambda_0.25"
+    ]
+  },
+  "oct_sem_replay": {
+    "json": "results/oct_decoder_on_oct_disjoint_v2_rd.json",
+    "matched_dpsnr": 0.22644451334648963,
+    "ci95": [
+      0.20353390728790988,
+      0.24994176821028055
+    ],
+    "n_in_support": 2
+  },
+  "oct_com_replay": {
+    "json": "results/oct_decoder_replay_on_oct_disjoint_v2_rd.json",
+    "matched_dpsnr": 0.2331905288970404,
+    "ci95": [
+      0.21395025744416554,
+      0.25298585607984314
+    ],
+    "n_in_support": 2
+  },
+  "contrast": {
+    "what": "oct_com_replay - oct_sem_replay (mesmo reamostreio)",
+    "value": 0.006746015550550766,
+    "ci95": [
+      0.0012626993512441231,
+      0.01247983391439149
+    ],
+    "excludes_zero": true
+  },
+  "n_resamples_valid": 1000,
+  "common_grid": {
+    "why": "estimador (c) do Z1/X01-1: as duas curvas nos MESMOS bpps. Obrigatorio quando o tratamento desloca a taxa e os suportes proprios diferem.",
+    "bpp_range": [
+      0.391939779818058,
+      0.5998579653104147
+    ],
+    "oct_sem_replay": {
+      "dpsnr": 0.19543493152118324,
+      "ci95": [
+        0.17010049605162766,
+        0.22273734003393753
+      ]
+    },
+    "oct_com_replay": {
+      "dpsnr": 0.20277646385474632,
+      "ci95": [
+        0.1802113988324061,
+        0.2269686249133354
+      ]
+    },
+    "contrast": {
+      "value": 0.007341532333563078,
+      "ci95": [
+        0.0023477472076671884,
+        0.012755382330640816
+      ],
+      "excludes_zero": true
+    }
+  }
+}

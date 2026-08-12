@@ -1,0 +1,129 @@
+{
+  "metric": "ms-ssim",
+  "reference": "results/_exp_30jul/xray_generic_disjoint_msssim_rd.json",
+  "B": 1000,
+  "seed": 42,
+  "cells": {
+    "quantizador": {
+      "bd_rate_pct": -0.2738544312708924,
+      "window": {
+        "lo": 16.454577043983033,
+        "hi": 19.125605079641616,
+        "width": 2.6710280356585834
+      },
+      "n_pareto_ref": 7,
+      "n_pareto_test": 7,
+      "n_points_ref": 7,
+      "n_points_test": 7,
+      "ci95": [
+        -0.42941434801049283,
+        -0.13025105948727245
+      ],
+      "n_resamples_valid": 1000,
+      "window_bootstrap_floor": 2.6171439578339104,
+      "excludes_zero": true,
+      "json": "results/_exp_30jul/v4_finetuned_on_xray_disjoint_msssim_rd.json"
+    },
+    "encoder": {
+      "bd_rate_pct": 0.983824231212993,
+      "window": {
+        "lo": 15.751713376888869,
+        "hi": 19.143779343153863,
+        "width": 3.392065966264994
+      },
+      "n_pareto_ref": 7,
+      "n_pareto_test": 8,
+      "n_points_ref": 7,
+      "n_points_test": 8,
+      "ci95": [
+        0.4225799557513149,
+        1.5754501424146332
+      ],
+      "n_resamples_valid": 1000,
+      "window_bootstrap_floor": 3.3258370373957313,
+      "excludes_zero": true,
+      "json": "results/_exp_01ago/v8_encoder_on_xray_disjoint_msssim_rd.json"
+    },
+    "encoder_hyper": {
+      "bd_rate_pct": -4.850141646990491,
+      "window": {
+        "lo": 15.751713376888869,
+        "hi": 19.143779343153863,
+        "width": 3.392065966264994
+      },
+      "n_pareto_ref": 7,
+      "n_pareto_test": 8,
+      "n_points_ref": 7,
+      "n_points_test": 8,
+      "ci95": [
+        -5.184560286299966,
+        -4.485940816198615
+      ],
+      "n_resamples_valid": 1000,
+      "window_bootstrap_floor": 3.3258370373957313,
+      "excludes_zero": true,
+      "json": "results/_exp_01ago/xray_encoder_hyper_on_xray_disjoint_msssim_rd.json"
+    },
+    "decoder": {
+      "bd_rate_pct": -4.159403353040892,
+      "window": {
+        "lo": 16.84960421605438,
+        "hi": 19.143779343153863,
+        "width": 2.294175127099482
+      },
+      "n_pareto_ref": 7,
+      "n_pareto_test": 8,
+      "n_points_ref": 7,
+      "n_points_test": 8,
+      "ci95": [
+        -4.3014446701030895,
+        -4.027946226225035
+      ],
+      "n_resamples_valid": 1000,
+      "window_bootstrap_floor": 2.24573823814919,
+      "excludes_zero": true,
+      "json": "results/_exp_01ago/v7_decoder_on_xray_disjoint_msssim_rd.json"
+    },
+    "full_runBfix": {
+      "bd_rate_pct": -7.266200674155443,
+      "window": {
+        "lo": 15.751713376888869,
+        "hi": 19.143779343153863,
+        "width": 3.392065966264994
+      },
+      "n_pareto_ref": 7,
+      "n_pareto_test": 8,
+      "n_points_ref": 7,
+      "n_points_test": 8,
+      "ci95": [
+        -8.032258041263056,
+        -6.397784922436876
+      ],
+      "n_resamples_valid": 1000,
+      "window_bootstrap_floor": 3.3258370373957313,
+      "excludes_zero": true,
+      "json": "results/_exp_01ago/v6_full_runBfix_on_xray_disjoint_msssim_rd.json"
+    },
+    "full_runB8": {
+      "bd_rate_pct": -7.415475538017224,
+      "window": {
+        "lo": 15.751713376888869,
+        "hi": 19.143779343153863,
+        "width": 3.392065966264994
+      },
+      "n_pareto_ref": 7,
+      "n_pareto_test": 7,
+      "n_points_ref": 7,
+      "n_points_test": 8,
+      "ci95": [
+        -8.811343784060808,
+        -5.71683135869113
+      ],
+      "n_resamples_valid": 1000,
+      "window_bootstrap_floor": 3.3258370373957313,
+      "excludes_zero": true,
+      "json": "results/_exp_01ago/v6_full_runB8_on_xray_disjoint_msssim_rd.json"
+    }
+  },
+  "warning": "o limiar de 1 dB da 1a guarda do W15 foi calibrado em PSNR; em MS-SSIM-dB nao esta calibrado -- o piso e reportado, nao julgado"
+}

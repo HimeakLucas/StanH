@@ -1,0 +1,328 @@
+{
+  "what": "contrastes cross (encoder_hyper - encoder) do C2 sob tres definicoes de suporte",
+  "unit": "ΔPSNR medio casado por bpp no Kodak, dB (negativo = o encoder_hyper danifica mais)",
+  "estimators": {
+    "a": "suporte proprio de cada curva dentro do suporte da generica (o do ledger)",
+    "b": "encoder restrito a faixa de bpp dos pontos in-suporte do encoder_hyper",
+    "c": "grade PCHIP comum as duas curvas, dentro do suporte da generica"
+  },
+  "preferred": "c",
+  "why_preferred": "(a) compara medias tomadas em faixas de bpp diferentes, e o desencontro e CAUSADO pelo tratamento (o encoder_hyper retreina o modelo de entropia e desloca a taxa), logo mistura dano com colocacao de lambda. (b) corrige isso mas depende de quais lambdas a celula por acaso tem, e e assimetrico por construcao (restringe so o encoder). (c) nao depende da grade de lambda de nenhuma das duas: avalia as duas curvas nos MESMOS bpps. O preco de (c) e interpolar entre pontos medidos; por isso os tres sao reportados lado a lado e a leitura exige que (b) e (c) concordem.",
+  "domains": {
+    "documentos": {
+      "domain": "documentos",
+      "encoder_json": "results/documents_encoder_on_cross_rd.json",
+      "hyper_json": "results/documents_encoder_hyper_on_cross_rd.json",
+      "reference_json": "results/kodak_rd.json",
+      "n_images": 24,
+      "B": 1000,
+      "seed": 42,
+      "point": {
+        "a_encoder": -0.12231166492596231,
+        "a_hyper": -1.102029084292439,
+        "a_contrast": -0.9797174193664766,
+        "b_encoder": -0.2525066254057909,
+        "b_hyper": -1.102029084292439,
+        "b_contrast": -0.8495224588866481,
+        "c_encoder": -0.25103582866277147,
+        "c_hyper": -1.0664315385276075,
+        "c_contrast": -0.8153957098648361
+      },
+      "ci95": {
+        "a_encoder": [
+          -0.17720188983179563,
+          -0.07478313529128948
+        ],
+        "a_hyper": [
+          -1.3586938688285548,
+          -0.8308732090237378
+        ],
+        "a_contrast": [
+          -1.208960706943642,
+          -0.7358944856929521
+        ],
+        "b_encoder": [
+          -0.3138794428680421,
+          -0.17228715723415772
+        ],
+        "b_hyper": [
+          -1.3586938688285548,
+          -0.8308732090237378
+        ],
+        "b_contrast": [
+          -1.0745474788237594,
+          -0.6424346342622067
+        ],
+        "c_encoder": [
+          -0.31609768738298727,
+          -0.1943874158017847
+        ],
+        "c_hyper": [
+          -1.3125228004461027,
+          -0.8145919113750495
+        ],
+        "c_contrast": [
+          -1.0188777514706748,
+          -0.6036381173212175
+        ]
+      },
+      "n_resamples_valid": {
+        "a_encoder": 1000,
+        "a_hyper": 1000,
+        "a_contrast": 1000,
+        "b_encoder": 1000,
+        "b_hyper": 1000,
+        "b_contrast": 1000,
+        "c_encoder": 1000,
+        "c_hyper": 1000,
+        "c_contrast": 1000
+      },
+      "support": {
+        "generic_pareto_bpp": [
+          0.24132258569200835,
+          0.6508879773318768
+        ],
+        "n_generic_pareto": 7,
+        "n_support_encoder": 5,
+        "n_support_hyper": 5,
+        "n_support_encoder_restricted": 3,
+        "encoder_support_bpp": [
+          0.2564603726690014,
+          0.3114221679667632,
+          0.41941165924072266,
+          0.509537830327948,
+          0.5320691366990408
+        ],
+        "hyper_support_bpp": [
+          0.32144818889598054,
+          0.3763620766500632,
+          0.48900206076602143,
+          0.5940020345151424,
+          0.6131277593473593
+        ],
+        "encoder_restricted_bpp": [
+          0.41941165924072266,
+          0.509537830327948,
+          0.5320691366990408
+        ],
+        "common_grid_bpp": [
+          0.32144818889598054,
+          0.6508879773318768
+        ]
+      },
+      "n_support_hyper_over_resamples": {
+        "min": 5,
+        "max": 5,
+        "mean": 5.0
+      }
+    },
+    "oct": {
+      "domain": "oct",
+      "encoder_json": "results/oct_encoder_on_cross_rd.json",
+      "hyper_json": "results/oct_encoder_hyper_on_cross_rd.json",
+      "reference_json": "results/kodak_rd.json",
+      "n_images": 24,
+      "B": 1000,
+      "seed": 42,
+      "point": {
+        "a_encoder": -0.19773470377909774,
+        "a_hyper": -0.7071683515199929,
+        "a_contrast": -0.5094336477408952,
+        "b_encoder": -0.18013633616433822,
+        "b_hyper": -0.7071683515199929,
+        "b_contrast": -0.5270320153556547,
+        "c_encoder": -0.12106584981655573,
+        "c_hyper": -0.7301669776044963,
+        "c_contrast": -0.6091011277879406
+      },
+      "ci95": {
+        "a_encoder": [
+          -0.22936387930693786,
+          -0.16772234220055693
+        ],
+        "a_hyper": [
+          -0.7823729878448986,
+          -0.5535628361895346
+        ],
+        "a_contrast": [
+          -0.5861887307859136,
+          -0.3474802229930136
+        ],
+        "b_encoder": [
+          -0.19728735855456064,
+          -0.05956786272443848
+        ],
+        "b_hyper": [
+          -0.7823729878448986,
+          -0.5535628361895346
+        ],
+        "b_contrast": [
+          -0.6610577713358065,
+          -0.3786658392807637
+        ],
+        "c_encoder": [
+          -0.15384888953771905,
+          -0.09714735949257865
+        ],
+        "c_hyper": [
+          -0.8902933095848001,
+          -0.5929906073186636
+        ],
+        "c_contrast": [
+          -0.7555383408889526,
+          -0.4787770676745243
+        ]
+      },
+      "n_resamples_valid": {
+        "a_encoder": 1000,
+        "a_hyper": 1000,
+        "a_contrast": 1000,
+        "b_encoder": 1000,
+        "b_hyper": 1000,
+        "b_contrast": 1000,
+        "c_encoder": 1000,
+        "c_hyper": 1000,
+        "c_contrast": 1000
+      },
+      "support": {
+        "generic_pareto_bpp": [
+          0.24132258569200835,
+          0.6508879773318768
+        ],
+        "n_generic_pareto": 7,
+        "n_support_encoder": 4,
+        "n_support_hyper": 2,
+        "n_support_encoder_restricted": 1,
+        "encoder_support_bpp": [
+          0.3021802405516307,
+          0.45457818172872066,
+          0.5863844615717729,
+          0.6331181066731612
+        ],
+        "hyper_support_bpp": [
+          0.33975634910166264,
+          0.5077832297732433
+        ],
+        "encoder_restricted_bpp": [
+          0.45457818172872066
+        ],
+        "common_grid_bpp": [
+          0.24132258569200835,
+          0.6508879773318768
+        ]
+      },
+      "n_support_hyper_over_resamples": {
+        "min": 2,
+        "max": 3,
+        "mean": 2.265
+      }
+    },
+    "rico": {
+      "domain": "rico",
+      "encoder_json": "results/rico_encoder_on_cross_rd.json",
+      "hyper_json": "results/rico_encoder_hyper_on_cross_rd.json",
+      "reference_json": "results/kodak_rd.json",
+      "n_images": 24,
+      "B": 1000,
+      "seed": 42,
+      "point": {
+        "a_encoder": 0.11389078094665664,
+        "a_hyper": 0.07837446139770066,
+        "a_contrast": -0.03551631954895598,
+        "b_encoder": 0.06502719172105564,
+        "b_hyper": 0.07837446139770066,
+        "b_contrast": 0.013347269676645013,
+        "c_encoder": 0.05329469599902133,
+        "c_hyper": 0.06169457355564108,
+        "c_contrast": 0.00839987755661975
+      },
+      "ci95": {
+        "a_encoder": [
+          0.09231976764371681,
+          0.13470754568942914
+        ],
+        "a_hyper": [
+          0.061649038882936005,
+          0.091929539484327
+        ],
+        "a_contrast": [
+          -0.05210451077261351,
+          -0.017188104638764252
+        ],
+        "b_encoder": [
+          0.051441107053448176,
+          0.0781515002387712
+        ],
+        "b_hyper": [
+          0.061649038882936005,
+          0.091929539484327
+        ],
+        "b_contrast": [
+          0.005113430360014592,
+          0.02130891110105073
+        ],
+        "c_encoder": [
+          0.03977360185432298,
+          0.06733467239585453
+        ],
+        "c_hyper": [
+          0.046966946531604985,
+          0.07517131223201089
+        ],
+        "c_contrast": [
+          0.0005077913701417129,
+          0.01568257627712386
+        ]
+      },
+      "n_resamples_valid": {
+        "a_encoder": 1000,
+        "a_hyper": 1000,
+        "a_contrast": 1000,
+        "b_encoder": 1000,
+        "b_hyper": 1000,
+        "b_contrast": 1000,
+        "c_encoder": 1000,
+        "c_hyper": 1000,
+        "c_contrast": 1000
+      },
+      "support": {
+        "generic_pareto_bpp": [
+          0.24132258569200835,
+          0.6508879773318768
+        ],
+        "n_generic_pareto": 7,
+        "n_support_encoder": 5,
+        "n_support_hyper": 4,
+        "n_support_encoder_restricted": 4,
+        "encoder_support_bpp": [
+          0.25373938990135986,
+          0.3028895227859418,
+          0.42058093659579754,
+          0.5199210122227669,
+          0.5536316707730293
+        ],
+        "hyper_support_bpp": [
+          0.29844414504865807,
+          0.42361905984580517,
+          0.5347559042274952,
+          0.5707962277034918
+        ],
+        "encoder_restricted_bpp": [
+          0.3028895227859418,
+          0.42058093659579754,
+          0.5199210122227669,
+          0.5536316707730293
+        ],
+        "common_grid_bpp": [
+          0.25373938990135986,
+          0.6508879773318768
+        ]
+      },
+      "n_support_hyper_over_resamples": {
+        "min": 4,
+        "max": 4,
+        "mean": 4.0
+      }
+    }
+  }
+}

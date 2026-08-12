@@ -1,0 +1,45 @@
+{
+  "reference": "results/kodak_rd.json",
+  "B": 1000,
+  "seed": 42,
+  "lambdas_used": {
+    "oct_sem_replay": [
+      "lambda_0.02",
+      "lambda_0.06305",
+      "lambda_0.25"
+    ],
+    "oct_com_replay": [
+      "lambda_0.02",
+      "lambda_0.06305",
+      "lambda_0.25"
+    ]
+  },
+  "oct_sem_replay": {
+    "json": "results/oct_decoder_on_cross_rd.json",
+    "matched_dpsnr": -8.0096204884816,
+    "ci95": [
+      -9.275798532643154,
+      -6.643507005630752
+    ],
+    "n_in_support": 2
+  },
+  "oct_com_replay": {
+    "json": "results/oct_decoder_replay_on_cross_rd.json",
+    "matched_dpsnr": -0.05779408621424764,
+    "ci95": [
+      -0.07036714468215388,
+      -0.046905154341322676
+    ],
+    "n_in_support": 2
+  },
+  "contrast": {
+    "what": "oct_com_replay - oct_sem_replay (mesmo reamostreio)",
+    "value": 7.951826402267352,
+    "ci95": [
+      6.591388613093408,
+      9.210047072931367
+    ],
+    "excludes_zero": true
+  },
+  "n_resamples_valid": 1000
+}

@@ -285,9 +285,15 @@ models/old_trains/
 models/video_finetuning/
 models/derivations/
 
-# Result artifacts
+# Result artifacts. The RD JSONs are the evidence behind every figure and table, so they
+# are versioned; the rendered figures and heavy intermediates are not.
 *.yuv
-results/
+results/**
+!results/**/
+!results/**/*.json
+results/plots/
+results/archive_*/
+results/_review_*/
 .vscode
 
 # Staging area for downloaded/extracted domain datasets (large; re-fetch or rsync)

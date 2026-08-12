@@ -1,0 +1,289 @@
+{
+  "generated_by": "scripts/saturation_index.py (A3/W8, 30/07/2026)",
+  "primary_index": "S = terminal slope / mean slope over the post-Pareto GENERIC curve, in dB per bpp doubling. S->0 saturated (reconstruction-limited); S->1 still climbing (rate-limited).",
+  "secondary_index": "R = PSNR gain in the upper bpp tercile / gain in the lower one. Robustness only; cannot overturn the verdict.",
+  "preregistration": "defined and written down BEFORE computing. PASSES if some threshold in S perfectly separates encoder-wins from decoder-wins, in the predicted direction (higher S => encoder wins). Otherwise the 2x2 loses predictive status and stays descriptive.",
+  "convention": "pontos pos-Pareto (drop_dominated), como no resto da analise",
+  "bootstrap": {
+    "B": 1000,
+    "seed": 42
+  },
+  "domains": {
+    "raio-X": {
+      "generic_json": "results/xray_generic_disjoint_rd.json",
+      "index_primary": {
+        "S": 0.11145392129784719,
+        "terminal_slope_db_per_doubling": 0.21407080453143457,
+        "mean_slope_db_per_doubling": 1.9207112862306217,
+        "n_pareto": 7,
+        "bpp_range": [
+          0.03517573604981104,
+          0.11817738403876622
+        ],
+        "psnr_range": [
+          38.61141616821289,
+          41.969398498535156
+        ]
+      },
+      "index_secondary": {
+        "R": 0.05219514385476537,
+        "gain_lower_third_db": 2.8406331131802602,
+        "gain_upper_third_db": 0.14826725398105367
+      },
+      "winner": {
+        "encoder": {
+          "json": "results/v8_encoder_on_xray_disjoint_rd.json",
+          "bd_rate_pct": 2.3774627617284994,
+          "psnr_window_db": 3.016567408243816,
+          "ci": {
+            "ci_lo": 1.7298559141466907,
+            "ci_hi": 3.0478315555170616,
+            "n_resamples": 1000,
+            "window_floor_db": 2.935405375162759
+          }
+        },
+        "decoder": {
+          "json": "results/v7_decoder_on_xray_disjoint_rd.json",
+          "bd_rate_pct": -3.4331696201067907,
+          "psnr_window_db": 2.144185409545898,
+          "ci": {
+            "ci_lo": -3.5650345500994787,
+            "ci_hi": -3.3052595845125787,
+            "n_resamples": 1000,
+            "window_floor_db": 2.0823244202931734
+          }
+        }
+      }
+    },
+    "OCT": {
+      "generic_json": "results/oct_generic_disjoint_v2_rd.json",
+      "index_primary": {
+        "S": 0.6595715632195754,
+        "terminal_slope_db_per_doubling": 1.485707198634068,
+        "mean_slope_db_per_doubling": 2.252533737782547,
+        "n_pareto": 7,
+        "bpp_range": [
+          0.17637878569463888,
+          0.5998579653104147
+        ],
+        "psnr_range": [
+          30.730733439127604,
+          34.708581631978355
+        ]
+      },
+      "index_secondary": {
+        "R": 0.7489834519441718,
+        "gain_lower_third_db": 1.4771426741125353,
+        "gain_upper_third_db": 1.1063554190708516
+      },
+      "winner": {
+        "encoder": {
+          "json": "results/oct_encoder_on_oct_disjoint_v2_rd.json",
+          "bd_rate_pct": -4.3825244289526495,
+          "psnr_window_db": 3.9778481928507503,
+          "ci": {
+            "ci_lo": -4.563875827105872,
+            "ci_hi": -4.213909146605419,
+            "n_resamples": 1000,
+            "window_floor_db": 3.8862144826253258
+          }
+        },
+        "decoder": {
+          "json": "results/oct_decoder_on_oct_disjoint_v2_rd.json",
+          "bd_rate_pct": -5.276132067450412,
+          "psnr_window_db": 3.2690354919433595,
+          "ci": {
+            "ci_lo": -5.620944034761501,
+            "ci_hi": -4.932532523752713,
+            "n_resamples": 1000,
+            "window_floor_db": 3.19187624804179
+          }
+        }
+      }
+    },
+    "retina": {
+      "generic_json": "results/retina_generic_disjoint_rd.json",
+      "index_primary": {
+        "S": 0.15546716713176814,
+        "terminal_slope_db_per_doubling": 0.09852600063051614,
+        "mean_slope_db_per_doubling": 0.6337415317216735,
+        "n_pareto": 6,
+        "bpp_range": [
+          0.02969074370339513,
+          0.19080066154400507
+        ],
+        "psnr_range": [
+          39.82425914764404,
+          41.52520940144857
+        ]
+      },
+      "index_secondary": {
+        "R": 0.05924197635915951,
+        "gain_lower_third_db": 1.481372553629349,
+        "gain_upper_third_db": 0.08775943780121764
+      },
+      "winner": {
+        "encoder": {
+          "json": "results/retina_encoder_on_retina_disjoint_rd.json",
+          "bd_rate_pct": -32.302272878139085,
+          "psnr_window_db": 0.4254738489786831,
+          "ci": {
+            "ci_lo": -34.3417176941873,
+            "ci_hi": 3.2706511090063524,
+            "n_resamples": 1000,
+            "window_floor_db": 0.40786908467611005
+          }
+        },
+        "decoder": {
+          "json": "results/retina_decoder_on_retina_disjoint_rd.json",
+          "bd_rate_pct": -7.686708606488546,
+          "psnr_window_db": 1.634419975280764,
+          "ci": {
+            "ci_lo": -8.639172240059159,
+            "ci_hi": -6.402640604784795,
+            "n_resamples": 1000,
+            "window_floor_db": 1.5849855060577354
+          }
+        }
+      }
+    },
+    "documentos": {
+      "generic_json": "results/documents_generic_rd.json",
+      "index_primary": {
+        "S": 0.15947901240280982,
+        "terminal_slope_db_per_doubling": 0.5877211766465381,
+        "mean_slope_db_per_doubling": 3.685257187084156,
+        "n_pareto": 7,
+        "bpp_range": [
+          0.28238633486131826,
+          0.6570913882056872
+        ],
+        "psnr_range": [
+          32.90974793752034,
+          37.3999528503418
+        ]
+      },
+      "index_secondary": {
+        "R": 0.15491733965858998,
+        "gain_lower_third_db": 2.6172917141131578,
+        "gain_upper_third_db": 0.4054638694608812
+      },
+      "winner": {
+        "encoder": {
+          "json": "results/documents_encoder_on_documents_rd.json",
+          "bd_rate_pct": 0.027696482517991505,
+          "psnr_window_db": 3.57978370666504,
+          "ci": {
+            "ci_lo": -0.8905719037103332,
+            "ci_hi": 1.0564755598910145,
+            "n_resamples": 1000,
+            "window_floor_db": 3.447014922777811
+          }
+        },
+        "decoder": {
+          "json": "results/documents_decoder_on_documents_rd.json",
+          "bd_rate_pct": -9.147057823009098,
+          "psnr_window_db": 2.77881306966146,
+          "ci": {
+            "ci_lo": -9.581929313702611,
+            "ci_hi": -8.684539787642493,
+            "n_resamples": 1000,
+            "window_floor_db": 2.683892210324604
+          }
+        }
+      }
+    },
+    "DIOR": {
+      "generic_json": "results/dior_generic_rd.json",
+      "index_primary": {
+        "S": 0.4561741373673353,
+        "terminal_slope_db_per_doubling": 1.3932439358937385,
+        "mean_slope_db_per_doubling": 3.054193172665169,
+        "n_pareto": 7,
+        "bpp_range": [
+          0.23000719537337622,
+          0.6130210025111834
+        ],
+        "psnr_range": [
+          31.05740145365397,
+          35.37681708017985
+        ]
+      },
+      "index_secondary": {
+        "R": 0.471000479710173,
+        "gain_lower_third_db": 1.9552296872443442,
+        "gain_upper_third_db": 0.9209141206356577
+      },
+      "winner": {
+        "encoder": {
+          "json": "results/dior_encoder_on_dior_rd.json",
+          "bd_rate_pct": -2.3232570041399225,
+          "psnr_window_db": 4.309235649108885,
+          "ci": {
+            "ci_lo": -2.5618021827874133,
+            "ci_hi": -2.0587591396794256,
+            "n_resamples": 1000,
+            "window_floor_db": 4.200569656372069
+          }
+        },
+        "decoder": {
+          "json": "results/dior_decoder_on_dior_rd.json",
+          "bd_rate_pct": -0.3484738731606152,
+          "psnr_window_db": 3.233688049316406,
+          "ci": {
+            "ci_lo": -0.49828818826685745,
+            "ci_hi": -0.19083916361655823,
+            "n_resamples": 1000,
+            "window_floor_db": 3.1527201245625798
+          }
+        }
+      }
+    },
+    "RICO": {
+      "generic_json": "results/rico_generic_rd.json",
+      "index_primary": {
+        "S": 0.11209459203199186,
+        "terminal_slope_db_per_doubling": 0.26633518914498366,
+        "mean_slope_db_per_doubling": 2.375986069595324,
+        "n_pareto": 7,
+        "bpp_range": [
+          0.10098225872963668,
+          0.31358814934889473
+        ],
+        "psnr_range": [
+          35.94437042236328,
+          39.828559239705406
+        ]
+      },
+      "index_secondary": {
+        "R": 0.06286490769976127,
+        "gain_lower_third_db": 3.055361520062327,
+        "gain_upper_third_db": 0.19207501994812048
+      },
+      "winner": {
+        "encoder": {
+          "json": "results/rico_encoder_on_rico_rd.json",
+          "bd_rate_pct": -1.8142686845941225,
+          "psnr_window_db": 2.017935180664068,
+          "ci": {
+            "ci_lo": -2.449517525910286,
+            "ci_hi": 3.4403611973368475,
+            "n_resamples": 1000,
+            "window_floor_db": 1.9504556051890076
+          }
+        },
+        "decoder": {
+          "json": "results/rico_decoder_on_rico_rd.json",
+          "bd_rate_pct": -9.333431364504142,
+          "psnr_window_db": 2.0887285741170274,
+          "ci": {
+            "ci_lo": -9.980114406164077,
+            "ci_hi": -8.610774877880404,
+            "n_resamples": 1000,
+            "window_floor_db": 2.013274407386782
+          }
+        }
+      }
+    }
+  }
+}

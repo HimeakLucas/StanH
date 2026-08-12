@@ -1,0 +1,58 @@
+{
+ "lambda_0.003_best.pth.tar": {
+  "fp32_full_MB": 301.27,
+  "fp16_delta_MB": 13.89,
+  "params_M": 6.929,
+  "anchor_MB": 301.7,
+  "razao_sobre_ancora": 21.7
+ },
+ "lambda_0.00666_best.pth.tar": {
+  "fp32_full_MB": 301.27,
+  "fp16_delta_MB": 13.89,
+  "params_M": 6.929,
+  "anchor_MB": 301.7,
+  "razao_sobre_ancora": 21.7
+ },
+ "lambda_0.02_best.pth.tar": {
+  "fp32_full_MB": 301.27,
+  "fp16_delta_MB": 13.89,
+  "params_M": 6.929,
+  "anchor_MB": 301.7,
+  "razao_sobre_ancora": 21.7
+ },
+ "lambda_0.04_best.pth.tar": {
+  "fp32_full_MB": 301.27,
+  "fp16_delta_MB": 13.89,
+  "params_M": 6.929,
+  "anchor_MB": 301.7,
+  "razao_sobre_ancora": 21.7
+ },
+ "lambda_0.06305_best.pth.tar": {
+  "fp32_full_MB": 301.27,
+  "fp16_delta_MB": 13.89,
+  "params_M": 6.929,
+  "anchor_MB": 301.7,
+  "razao_sobre_ancora": 21.7
+ },
+ "lambda_0.13_best.pth.tar": {
+  "fp32_full_MB": 301.27,
+  "fp16_delta_MB": 13.89,
+  "params_M": 6.929,
+  "anchor_MB": 301.7,
+  "razao_sobre_ancora": 21.7
+ },
+ "lambda_0.25_best.pth.tar": {
+  "fp32_full_MB": 301.27,
+  "fp16_delta_MB": 13.89,
+  "params_M": 6.929,
+  "anchor_MB": 301.7,
+  "razao_sobre_ancora": 21.7
+ },
+ "lambda_0.44014_best.pth.tar": {
+  "fp32_full_MB": 301.27,
+  "fp16_delta_MB": 13.89,
+  "params_M": 6.929,
+  "anchor_MB": 301.7,
+  "razao_sobre_ancora": 21.7
+ }
+}

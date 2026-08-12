@@ -1,0 +1,42 @@
+{
+  "lambda_0.003_best.pth.tar": {
+    "fp32_MB": 27.75,
+    "fp16_MB": 13.89,
+    "razao": 2.0
+  },
+  "lambda_0.00666_best.pth.tar": {
+    "fp32_MB": 27.75,
+    "fp16_MB": 13.89,
+    "razao": 2.0
+  },
+  "lambda_0.02_best.pth.tar": {
+    "fp32_MB": 27.75,
+    "fp16_MB": 13.89,
+    "razao": 2.0
+  },
+  "lambda_0.04_best.pth.tar": {
+    "fp32_MB": 27.75,
+    "fp16_MB": 13.89,
+    "razao": 2.0
+  },
+  "lambda_0.06305_best.pth.tar": {
+    "fp32_MB": 27.75,
+    "fp16_MB": 13.89,
+    "razao": 2.0
+  },
+  "lambda_0.13_best.pth.tar": {
+    "fp32_MB": 27.75,
+    "fp16_MB": 13.89,
+    "razao": 2.0
+  },
+  "lambda_0.25_best.pth.tar": {
+    "fp32_MB": 27.75,
+    "fp16_MB": 13.89,
+    "razao": 2.0
+  },
+  "lambda_0.44014_best.pth.tar": {
+    "fp32_MB": 27.75,
+    "fp16_MB": 13.89,
+    "razao": 2.0
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "reference": "results/xray_generic_disjoint_rd.json",
+  "B": 1000,
+  "seed": 42,
+  "lambdas_used": {
+    "xray_decoder_sem_replay": [
+      "lambda_0.02",
+      "lambda_0.06305",
+      "lambda_0.25"
+    ],
+    "xray_decoder_com_replay": [
+      "lambda_0.02",
+      "lambda_0.06305",
+      "lambda_0.25"
+    ]
+  },
+  "xray_decoder_sem_replay": {
+    "json": "results/v7_decoder_on_xray_disjoint_rd.json",
+    "matched_dpsnr": 0.1692184970759527,
+    "ci95": [
+      0.16299343599575813,
+      0.17634916973731649
+    ],
+    "n_in_support": 3
+  },
+  "xray_decoder_com_replay": {
+    "json": "results/_exp_01ago/xray_decoder_replay_on_xray_disjoint_rd.json",
+    "matched_dpsnr": 0.09616774200055644,
+    "ci95": [
+      0.09211237227983604,
+      0.10070043741974395
+    ],
+    "n_in_support": 2
+  },
+  "contrast": {
+    "what": "xray_decoder_com_replay - xray_decoder_sem_replay (mesmo reamostreio)",
+    "value": -0.07305075507539627,
+    "ci95": [
+      -0.07780360058898152,
+      -0.06895162296800432
+    ],
+    "excludes_zero": true
+  },
+  "n_resamples_valid": 1000,
+  "bd_rate_target": {
+    "reference": "results/xray_generic_disjoint_rd.json",
+    "bd_rate_pct": -7.442569157208911,
+    "ci95": [
+      -7.7800998836693935,
+      -7.107616755306681
+    ],
+    "window_width": 0.7678277079264291,
+    "window_bootstrap_floor": 0.743737332661941,
+    "n_pareto": 3,
+    "n_points": 3,
+    "guard1_W15_pass": false,
+    "reportable": false,
+    "note": "1a guarda do W15: piso bootstrap da janela (percentil 2,5) >= 1 dB. Reprovada => o BD NAO e reportavel; usar o ΔPSNR casado."
+  }
+}

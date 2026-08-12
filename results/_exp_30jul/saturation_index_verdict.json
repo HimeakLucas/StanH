@@ -1,0 +1,82 @@
+{
+  "generated_by": "saturation index verdict, 2026-07-30 -- companion of saturation_index.json",
+  "source": "results/_exp_30jul/saturation_index.json",
+  "preregistered_criterion": "PASSES if some threshold in S perfectly separates encoder-wins from decoder-wins, in the predicted direction (higher S => encoder wins). Domains failing the window guard (window floor < 1 dB) are EXCLUDED.",
+  "table": [
+    {
+      "domain": "raio-X",
+      "S": 0.11145392129784719,
+      "R": 0.05219514385476537,
+      "winner": "decoder",
+      "bd_encoder_pct": 2.3774627617284994,
+      "bd_decoder_pct": -3.4331696201067907,
+      "window_floor_encoder_db": 2.935405375162759,
+      "window_floor_decoder_db": 2.0823244202931734
+    },
+    {
+      "domain": "OCT",
+      "S": 0.6595715632195754,
+      "R": 0.7489834519441718,
+      "winner": "decoder",
+      "bd_encoder_pct": -4.3825244289526495,
+      "bd_decoder_pct": -5.276132067450412,
+      "window_floor_encoder_db": 3.8862144826253258,
+      "window_floor_decoder_db": 3.19187624804179
+    },
+    {
+      "domain": "retina",
+      "S": 0.15546716713176814,
+      "R": 0.05924197635915951,
+      "winner": "EXCLUIDO (guarda W15: piso de janela < 1 dB)",
+      "bd_encoder_pct": -32.302272878139085,
+      "bd_decoder_pct": -7.686708606488546,
+      "window_floor_encoder_db": 0.40786908467611005,
+      "window_floor_decoder_db": 1.5849855060577354
+    },
+    {
+      "domain": "documentos",
+      "S": 0.15947901240280982,
+      "R": 0.15491733965858998,
+      "winner": "decoder",
+      "bd_encoder_pct": 0.027696482517991505,
+      "bd_decoder_pct": -9.147057823009098,
+      "window_floor_encoder_db": 3.447014922777811,
+      "window_floor_decoder_db": 2.683892210324604
+    },
+    {
+      "domain": "DIOR",
+      "S": 0.4561741373673353,
+      "R": 0.471000479710173,
+      "winner": "encoder",
+      "bd_encoder_pct": -2.3232570041399225,
+      "bd_decoder_pct": -0.3484738731606152,
+      "window_floor_encoder_db": 4.200569656372069,
+      "window_floor_decoder_db": 3.1527201245625798
+    },
+    {
+      "domain": "RICO",
+      "S": 0.11209459203199186,
+      "R": 0.06286490769976127,
+      "winner": "decoder",
+      "bd_encoder_pct": -1.8142686845941225,
+      "bd_decoder_pct": -9.333431364504142,
+      "window_floor_encoder_db": 1.9504556051890076,
+      "window_floor_decoder_db": 2.013274407386782
+    }
+  ],
+  "n_usable": 5,
+  "encoder_wins": [
+    "DIOR"
+  ],
+  "decoder_wins": [
+    "raio-X",
+    "OCT",
+    "documentos",
+    "RICO"
+  ],
+  "separates_primary_S": false,
+  "separates_secondary_R": false,
+  "verdict": "FALHA",
+  "consequence": "FAILS => the formal saturation index dies: it stays qualitative and the 2x2 is DESCRIPTIVE, not a rule. What changes is the evidence: the demotion stops being 'the index does not exist' and becomes 'the index was built, pre-registered and does NOT predict the winner'.",
+  "caveat": "n=6, of which 5 usable and only 1 with the encoder winning. Separation at this n is never a statistical test; that is why the PASS branch would have been weak too."
+}

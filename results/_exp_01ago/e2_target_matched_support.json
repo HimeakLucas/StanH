@@ -1,0 +1,72 @@
+{
+  "reference": "results/xray_generic_disjoint_rd.json",
+  "B": 1000,
+  "seed": 42,
+  "lambdas_used": {
+    "xray_decoder_sem_replay": [
+      "lambda_0.02",
+      "lambda_0.06305"
+    ],
+    "xray_decoder_com_replay": [
+      "lambda_0.02",
+      "lambda_0.06305"
+    ]
+  },
+  "xray_decoder_sem_replay": {
+    "json": "results/v7_decoder_on_xray_disjoint_rd.json",
+    "matched_dpsnr": 0.12003890968478359,
+    "ci95": [
+      0.11530948783045983,
+      0.12545422333625397
+    ],
+    "n_in_support": 2
+  },
+  "xray_decoder_com_replay": {
+    "json": "results/_exp_01ago/xray_decoder_replay_on_xray_disjoint_rd.json",
+    "matched_dpsnr": 0.09616774200055644,
+    "ci95": [
+      0.09211237227983604,
+      0.10070043741974395
+    ],
+    "n_in_support": 2
+  },
+  "contrast": {
+    "what": "xray_decoder_com_replay - xray_decoder_sem_replay (mesmo reamostreio)",
+    "value": -0.023871167684227146,
+    "ci95": [
+      -0.02715628905267318,
+      -0.020930787643215522
+    ],
+    "excludes_zero": true
+  },
+  "n_resamples_valid": 1000,
+  "common_grid": {
+    "why": "estimador (c) do Z1/X01-1: as duas curvas nos MESMOS bpps. Obrigatorio quando o tratamento desloca a taxa e os suportes proprios diferem.",
+    "bpp_range": [
+      0.04755436686178049,
+      0.057402071605126066
+    ],
+    "xray_decoder_sem_replay": {
+      "dpsnr": 0.03453119669943835,
+      "ci95": [
+        0.03073036135889743,
+        0.038905439439347024
+      ]
+    },
+    "xray_decoder_com_replay": {
+      "dpsnr": -0.027694500079873164,
+      "ci95": [
+        -0.03322393730383401,
+        -0.022568732904011464
+      ]
+    },
+    "contrast": {
+      "value": -0.062225696779311515,
+      "ci95": [
+        -0.06679858678910262,
+        -0.05809139228071848
+      ],
+      "excludes_zero": true
+    }
+  }
+}

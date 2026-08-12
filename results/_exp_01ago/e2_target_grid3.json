@@ -1,0 +1,74 @@
+{
+  "reference": "results/xray_generic_disjoint_rd.json",
+  "B": 1000,
+  "seed": 42,
+  "lambdas_used": {
+    "xray_decoder_sem_replay": [
+      "lambda_0.02",
+      "lambda_0.06305",
+      "lambda_0.25"
+    ],
+    "xray_decoder_com_replay": [
+      "lambda_0.02",
+      "lambda_0.06305",
+      "lambda_0.25"
+    ]
+  },
+  "xray_decoder_sem_replay": {
+    "json": "results/v7_decoder_on_xray_disjoint_rd.json",
+    "matched_dpsnr": 0.1692184970759527,
+    "ci95": [
+      0.16299343599575813,
+      0.17634916973731649
+    ],
+    "n_in_support": 3
+  },
+  "xray_decoder_com_replay": {
+    "json": "results/_exp_01ago/xray_decoder_replay_on_xray_disjoint_rd.json",
+    "matched_dpsnr": 0.09616774200055644,
+    "ci95": [
+      0.09211237227983604,
+      0.10070043741974395
+    ],
+    "n_in_support": 2
+  },
+  "contrast": {
+    "what": "xray_decoder_com_replay - xray_decoder_sem_replay (mesmo reamostreio)",
+    "value": -0.07305075507539627,
+    "ci95": [
+      -0.07780360058898152,
+      -0.06895162296800432
+    ],
+    "excludes_zero": true
+  },
+  "n_resamples_valid": 1000,
+  "common_grid": {
+    "why": "estimador (c) do Z1/X01-1: as duas curvas nos MESMOS bpps. Obrigatorio quando o tratamento desloca a taxa e os suportes proprios diferem.",
+    "bpp_range": [
+      0.04755436686178049,
+      0.11501644084850947
+    ],
+    "xray_decoder_sem_replay": {
+      "dpsnr": 0.18601383413148795,
+      "ci95": [
+        0.17797680184781864,
+        0.19499593198842666
+      ]
+    },
+    "xray_decoder_com_replay": {
+      "dpsnr": 0.11948656295345987,
+      "ci95": [
+        0.11343110382715556,
+        0.12615862420621082
+      ]
+    },
+    "contrast": {
+      "value": -0.06652727117802808,
+      "ci95": [
+        -0.0705944412821707,
+        -0.06312019710243966
+      ],
+      "excludes_zero": true
+    }
+  }
+}
