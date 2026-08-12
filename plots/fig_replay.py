@@ -101,6 +101,10 @@ def casado(ref, teste):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="results/plots/figs_relatorio/f4_replay.png")
+    ap.add_argument("--col", action="store_true",
+                    help="geometria de UMA coluna IEEE (3,4 in): paineis empilhados. "
+                         "Gera na largura final, sem reducao no .tex, de modo que os "
+                         "rotulos de 7 pt continuam com 7 pt na pagina.")
     args = ap.parse_args()
 
     kod = load(KODAK)
@@ -134,9 +138,14 @@ def main():
         "xtick.labelsize": 7.5, "ytick.labelsize": 8, "legend.fontsize": 7.5,
         "axes.linewidth": 0.7,
     })
-    fig, (esq, dir_) = plt.subplots(
-        1, 2, figsize=(7.0, 2.35),
-        gridspec_kw=dict(width_ratios=[2.05, 1.0], wspace=0.30))
+    if args.col:
+        fig, (esq, dir_) = plt.subplots(
+            2, 1, figsize=(3.4, 2.85),
+            gridspec_kw=dict(height_ratios=[3.0, 2.1], hspace=0.72))
+    else:
+        fig, (esq, dir_) = plt.subplots(
+            1, 2, figsize=(7.0, 2.35),
+            gridspec_kw=dict(width_ratios=[2.05, 1.0], wspace=0.30))
 
     ys = [2, 1, 0]
     for y, (rotulo, v_s, ci_s, v_c, ci_c, n_lam, n_sup) in zip(ys, dados):
@@ -148,8 +157,9 @@ def main():
         esq.plot([v_s], [y], marker="o", color=VERMELHO, markersize=5.5, zorder=4)
         esq.plot([v_c], [y], marker="s", color="white", markeredgecolor=AZUL,
                  markeredgewidth=1.2, markersize=5.5, zorder=4)
-        esq.annotate(f"{n_lam} λ · {n_sup} no suporte", xy=(0.35, y), fontsize=7,
-                     color="0.35", va="center")
+        nota_sup = (f"{n_lam}λ·{n_sup} sup." if args.col
+                    else f"{n_lam} λ · {n_sup} no suporte")
+        esq.annotate(nota_sup, xy=(0.35, y), fontsize=7, color="0.35", va="center")
     esq.axvline(0, color=PRETO, linewidth=0.8)
     esq.set_yticks(ys)
     esq.set_yticklabels([d[0] for d in dados])
@@ -159,7 +169,8 @@ def main():
     esq.xaxis.set_major_formatter(virgula(0))
     esq.grid(True, axis="x", alpha=0.25, linewidth=0.4)
     esq.set_axisbelow(True)
-    esq.set_xlabel("Dano no domínio de origem: ΔPSNR casado no Kodak (dB)")
+    esq.set_xlabel("Dano no Kodak: ΔPSNR casado (dB)" if args.col
+                   else "Dano no domínio de origem: ΔPSNR casado no Kodak (dB)")
 
     ys2 = [1, 0]
     for y, (rotulo, v_s, v_c, nota) in zip(ys2, alvo):
@@ -188,9 +199,12 @@ def main():
                          markeredgewidth=1.2, linestyle="none", markersize=5.5)]
     fig.legend(marcas, ["sem replay", "com replay (α=0,8)"], loc="lower center",
                ncol=2, frameon=False, handlelength=1.1, columnspacing=1.6,
-               bbox_to_anchor=(0.5, -0.02))
+               bbox_to_anchor=(0.5, -0.085 if args.col else -0.02))
 
-    fig.subplots_adjust(left=0.105, right=0.99, top=0.97, bottom=0.30)
+    if args.col:
+        fig.subplots_adjust(left=0.24, right=0.985, top=0.985, bottom=0.155)
+    else:
+        fig.subplots_adjust(left=0.105, right=0.99, top=0.97, bottom=0.30)
     destino = os.path.join(ROOT, args.out)
     os.makedirs(os.path.dirname(destino), exist_ok=True)
     fig.savefig(destino, dpi=200, bbox_inches="tight")
