@@ -1,23 +1,22 @@
-"""F8 - Custo x ganho x dano: a figura-tese.
+"""F8 - Cost x gain x damage: the thesis figure.
 
-Afirma: o eixo inteiro do trabalho numa imagem -- 320 -> 6,9 M -> 22 M -> 75 M
-parametros TREINAVEIS contra o ganho no dominio alvo, com o dano no dominio de
-origem como terceira dimensao (tamanho do marcador e anotacao em dB).
+The whole axis of the work in one image: 320 -> 6.9 M -> 22 M -> 75 M TRAINABLE parameters
+against the target-domain gain, with source-domain damage as a third dimension (marker size
+and a dB annotation).
 
-⚠ O eixo x e PARAMETROS TREINAVEIS, nunca "custo de armazenamento": sao duas
-dimensoes de custo diferentes, e o tamanho materializado do delta e uma anotacao de
-um ponto so, nao um eixo.
+The x axis is TRAINABLE PARAMETERS, never "storage cost": those are two different cost
+dimensions, and the materialized delta size is a single-point annotation, not an axis.
 
-⚠ A celula `full` e FAIXA nas duas coordenadas (duas replicas): desenhada como dois
-pontos ligados, nunca como um ponto.
+The `full` cell is a RANGE in both coordinates (two replicas): drawn as two connected
+points, never as one.
 
-⚠ O `encoder_hyper` e "adaptador intermediario", nunca "leve". E o dano cross dele
-no raio-X NAO existe na unidade da figura: o valor publicado (+5,43%) e BD-Rate, que
-e justamente a unidade que o trabalho proibe para dano cross. O ponto entra com a
-posicao que tem (custo e ganho) e o marcador vazado declara a terceira dimensao
-como nao medida -- computa-la aqui faria um numero nascer numa figura.
+`encoder_hyper` is an intermediate adapter, never a "lightweight" one. Its cross damage on
+x-ray does not exist in the unit of this figure: the published value (+5.43%) is BD-Rate,
+precisely the unit this work forbids for cross damage. The point enters with the position it
+has (cost and gain) and the hollow marker declares the third dimension as not measured --
+computing it here would make a number originate in a figure.
 
-Uso:
+Usage:
     python plots/fig_custo_ganho_dano.py
 """
 import argparse
@@ -34,8 +33,8 @@ AZUL, VERMELHO, VERDE, ROSA, AMBAR, PRETO = (
     "#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#000000")
 DELTA_ENCODER = "results/a3_delta_sizes.json"
 
-# rotulo, params treinaveis, BD alvo (%), dano cross (dB) ou None, cor, marcador
-# Todos os valores estao na Tabela I do relatorio (regua disjunta por paciente).
+# label, trainable params, target BD (%), cross damage (dB) or None, color, marker.
+# Every value comes from Table I of the report (patient-disjoint ruler).
 PONTOS = [
     ("Só quantizador", 320, [1.23], [-0.06], ROSA, "s"),
     ("Encoder", 6.9e6, [2.38], [0.01], VERMELHO, "v"),
@@ -74,7 +73,7 @@ def main():
     fig, eixo = plt.subplots(figsize=(3.05, 3.0))
 
     for rotulo, params, bds, danos, cor, mk in PONTOS:
-        if len(bds) > 1:                     # célula com réplica: faixa, não ponto
+        if len(bds) > 1:                     # replicated cell: a range, not a point
             eixo.plot([params, params], bds, color=cor, linewidth=1.2, zorder=2)
         for i, bd in enumerate(bds):
             if danos is None:
@@ -84,8 +83,8 @@ def main():
                 eixo.scatter([params], [bd], s=tamanho(danos[i]), color=cor,
                              marker=mk, zorder=3, edgecolors="white", linewidths=0.5)
 
-    # Rotulos vao para a legenda, e nao como anotacoes por ponto: a 3,4 in de
-    # largura cinco anotacoes se sobrepoem, e o dano em dB e o que precisa ser lido.
+    # Labels go to the legend rather than per-point annotations: at 3.4 in wide five
+    # annotations overlap, and the dB damage is what has to stay readable.
     rotulos = {
         "Só quantizador": "Só quantizador · −0,06 dB",
         "Encoder": "Encoder · +0,01 dB",

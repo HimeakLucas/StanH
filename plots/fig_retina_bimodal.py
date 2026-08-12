@@ -1,19 +1,18 @@
-"""F7 - O bootstrap bimodal da retina: por que "indefinido" nao e evasiva.
+"""F7 - The bimodal retina bootstrap: why "undefined" is not a dodge.
 
-Afirma: o BD-Rate do codificador na retina nao e uma medicao com incerteza grande --
-e um SORTEIO ENTRE DOIS VALORES. Duas modas separadas por um vale quase vazio.
+Claim: the retina encoder BD-Rate is not a measurement with wide uncertainty -- it is a
+DRAW BETWEEN TWO VALUES, two modes separated by a nearly empty valley.
 
-⚠ A causa e o `drop_dominated` ser DESCONTINUO: ele descarta pontos nao-Pareto ANTES
-de a janela ser fixada, entao 0,001 bpp de diferenca em qual ponto tem o menor bpp
-muda quais pontos sobrevivem, o que move o piso da janela e o BD em dezenas de p.p.
-A legenda tem de atribuir a bimodalidade a isso, e nao a "os dados da retina sao
-ruidosos", que e outra afirmacao, e falsa.
+The cause is that `drop_dominated` is DISCONTINUOUS: it discards non-Pareto points BEFORE
+the window is fixed, so 0.001 bpp of difference in which point has the lowest bpp changes
+which points survive, moving the window floor and the BD by tens of p.p. The caption must
+attribute the bimodality to that, not to "the retina data are noisy" -- a different claim,
+and a false one.
 
-Alvo de reproducao, publicado no relatorio: 64,4% das reamostragens abaixo de -15%,
-35,3% acima de zero e 0,3% entre os dois. Se as tres fracoes nao reproduzirem, o
-script para sem plotar.
+Reproduction target, as published: 64.4% of the resamples below -15%, 35.3% above zero and
+0.3% in between. The script aborts without plotting if the three fractions do not reproduce.
 
-Uso:
+Usage:
     python plots/fig_retina_bimodal.py
 """
 import argparse
@@ -35,8 +34,8 @@ AZUL, VERMELHO, PRETO = "#0072B2", "#D55E00", "#000000"
 REFERENCIA = "results/retina_generic_disjoint_rd.json"
 TESTE = "results/retina_encoder_on_retina_disjoint_rd.json"
 B, SEED = 1000, 42
-PUBLICADO = dict(abaixo=64.4, acima=35.3, meio=0.3)   # relatório, seção da retina
-TOL = 0.05  # pontos percentuais
+PUBLICADO = dict(abaixo=64.4, acima=35.3, meio=0.3)   # as published, retina section
+TOL = 0.05  # percentage points
 
 
 def num(v, casas):

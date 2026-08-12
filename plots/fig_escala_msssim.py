@@ -1,17 +1,17 @@
-"""F1 - A regua unica em MS-SSIM: a escala do adaptador.
+"""F1 - The single ruler in MS-SSIM: adapter scale.
 
-Afirma: o quantizador parametrico entrega um residuo uma ordem de grandeza menor
-que qualquer adaptador que funciona -- e isso e fato de MS-SSIM (em PSNR os sinais
-sao opostos e a razao contra o decodificador e 2,8x, nao 15x).
+Claim: the parametric quantizer leaves a residual an order of magnitude smaller than any
+adapter that works -- and that is a fact of MS-SSIM (in PSNR the signs are opposite and the
+ratio against the decoder is 2.8x, not 15x).
 
-O codificador NAO esta na escada: em MS-SSIM ele vale +0,98%, do lado errado do
-zero, e por isso fica separado acima da linha divisoria e com marcador proprio.
+The encoder is NOT on the ladder: in MS-SSIM it is worth +0.98%, on the wrong side of zero,
+so it sits above the divider with a marker of its own.
 
-Le `results/_exp_01ago/xray_msssim_bd_summary.json` (`bd_rate_pct` e `ci95` por
-celula), sem recalcular nada. As razoes de escala anotadas sao |BD| da celula
-dividido por |BD| do quantizador, a partir dos mesmos campos.
+Reads `results/_exp_01ago/xray_msssim_bd_summary.json` (`bd_rate_pct` and `ci95` per cell)
+without recomputing anything. The annotated scale ratios are |BD| of the cell over |BD| of
+the quantizer, from the same fields.
 
-Uso:
+Usage:
     python plots/fig_escala_msssim.py
 """
 import argparse
@@ -28,7 +28,7 @@ FONTE = "results/_exp_01ago/xray_msssim_bd_summary.json"
 
 AZUL, VERMELHO, ROSA, PRETO = "#0072B2", "#D55E00", "#CC79A7", "#000000"
 
-# (chave no JSON, rotulo, cor, marcador) de baixo para cima no eixo y
+# (JSON key, label, color, marker), bottom to top on the y axis
 LINHAS = [
     ("full_runB8", "Full 75 M · treino B", PRETO, "o"),
     ("full_runBfix", "Full 75 M · treino A", PRETO, "o"),
@@ -37,7 +37,7 @@ LINHAS = [
     ("quantizador", "Só quantizador 320", ROSA, "s"),
     ("encoder", "Encoder 6,9 M", VERMELHO, "^"),
 ]
-SEPARA_ACIMA_DE = "quantizador"   # linha divisoria entre o encoder e o resto
+SEPARA_ACIMA_DE = "quantizador"   # divider between the encoder and the rest
 
 
 def virgula(casas):
@@ -71,8 +71,8 @@ def main():
                           textcoords="offset points", va="center", fontsize=7.5,
                           color=cor)
 
-    # O IC do quantizador e menor que o marcador: nesta escala a barra some, e a
-    # figura pareceria dizer "zero". O valor vai escrito, para nao dizer isso.
+    # The quantizer CI is smaller than its marker: at this scale the bar vanishes and the
+    # figure would seem to say "zero". The value is written out so it does not.
     q = celulas["quantizador"]
     eixo.annotate(f"{q['bd_rate_pct']:.2f} [{q['ci95'][0]:.2f}; {q['ci95'][1]:.2f}]"
                   .replace(".", ","),

@@ -1,18 +1,18 @@
-"""F5 - O agregado move-se, a forma nao (contribuicao metodologica).
+"""F5 - The aggregate moves, the curve shape does not (methodological contribution).
 
-Afirma: o BD-Rate agregado pode mudar varios pontos percentuais enquanto a curva RD
-nao se move -- inclusive SEM TREINO NENHUM, so trocando a precisao de armazenamento
-do mesmo modelo treinado (fp32 -> fp16, 0,42 p.p.), que e mais que a semente nova.
+Claim: aggregate BD-Rate can shift by percentage points while the RD curve stays put --
+including with NO TRAINING AT ALL, just changing the storage precision of the same trained
+model (fp32 -> fp16, 0.42 p.p.), which is more than a fresh seed moves it.
 
-⚠ A figura NAO pode dizer "o agregado e instavel" sem qualificacao: seria generalizar
-da celula mais instavel do estudo, que e exatamente o vicio que a contribuicao
-denuncia. Por isso as duas celulas com agregado replicado aparecem juntas, e uma
-delas -- o `xray_encoder`, 0,27 p.p. -- e ESTAVEL.
+The figure must not say "the aggregate is unstable" unqualified: that would generalize from
+the most unstable cell in the study, the very vice this contribution denounces. Hence both
+cells with a replicated aggregate appear together, and one of them -- `xray_encoder`,
+0.27 p.p. -- is STABLE.
 
-⚠ A replica do RICO NAO entra: ela tem UM lambda, logo nao tem agregado (R01-1), e
-plota-la no painel da esquerda misturaria dois dominios nos mesmos eixos RD.
+The RICO replica is excluded: it has a single lambda, so it has no aggregate, and plotting
+it on the left panel would mix two domains on the same RD axes.
 
-Uso:
+Usage:
     python plots/fig_agregado_vs_forma.py
 """
 import argparse
@@ -31,9 +31,9 @@ from analyze_finetuned import bd_rate  # noqa: E402
 
 AZUL, VERMELHO, VERDE, PRETO = "#0072B2", "#D55E00", "#009E73", "#000000"
 GENERICA = "results/xray_generic_disjoint_rd.json"
-TOL = 0.02   # p.p.; os valores publicados vem com 2 casas
+TOL = 0.02   # p.p.; published values carry 2 decimals
 
-# grupo, rotulo, json, cor, marcador, estilo, BD publicado
+# group, label, json, color, marker, line style, published BD
 CURVAS = [
     ("full", "treino A", "results/v6_full_runBfix_on_xray_disjoint_rd.json",
      PRETO, "*", "-", -5.07),
@@ -57,8 +57,8 @@ def load(nome):
 
 
 def num(v, casas):
-    """Só o número com vírgula decimal — nunca aplicar `replace` na frase inteira,
-    que transformaria `p.p.` em `p,p,`."""
+    """Decimal comma on the number only: a `replace` over the whole sentence would
+    turn `p.p.` into `p,p,`."""
     return f"{v:.{casas}f}".replace(".", ",")
 
 

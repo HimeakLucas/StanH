@@ -1,34 +1,28 @@
-"""F3 - O mecanismo: luma x croma, e os controles que limitam a leitura causal.
+"""F3 - Mechanism: luma vs chroma damage, plus the controls that bound the causal reading.
 
-Afirma duas metades da MESMA coisa: nos dominios de colapso o dano do decodificador
-e dominado por CROMA e a correlacao inter-canal da saida sobe para perto de 1 (o
-decodificador desaprendeu a renderizar cor); e que a leitura causal "o dano em luma
-prova dano alem da cor" esta REVOGADA, porque `div2k_gray` -- conteudo natural,
-distancia de dominio ~ 0, unica manipulacao R=G=B -- perde luma na mesma ordem.
-As barras de controle nao sao opcionais: sem elas a figura afirma a leitura revogada.
+Two halves of one claim. In the collapsing domains the decoder damage is chroma-dominated
+and the output inter-channel correlation rises towards 1. But "luma damage proves damage
+beyond color" does NOT follow: `div2k_gray` -- natural content, domain distance ~ 0, only
+R=G=B -- loses luma of the same order. The control bars are not optional; without them the
+figure asserts the revoked reading.
 
-O controle tem TRES bracos, sobre as MESMAS 800 imagens do DIV2K, variando so a
-estatistica de cor, e a figura desenha os tres (ate 06/08 desenhava so o `gray`,
-enquanto o texto descrevia os tres):
-  - `div2k_color`  controle negativo, valida o aparato: nao danifica e nao move a xcorr;
-  - `div2k_gray`   monocromia basta para o dano em luma da magnitude observada;
-  - `div2k_decorr` colapsa (-2,64 dB) com a cor intacta e SEM levantar a xcorr, que
-                   fica ABAIXO da generica -- e o contraexemplo que proibe ler
-                   "xcorr alta <=> colapso" na metade direita da figura.
+Three control arms over the same 800 DIV2K images, varying only the color statistics:
+  - `div2k_color`  negative control, validates the apparatus: no damage, xcorr unmoved;
+  - `div2k_gray`   monochrome alone explains luma damage of the observed magnitude;
+  - `div2k_decorr` collapses (-2.64 dB) with color intact and xcorr BELOW the generic one
+                   -- the counterexample forbidding "high xcorr <=> collapse".
 
-NUNCA desenhar a razao CbCr/Y: o DIOR e RGB, nao colapsa, e tem razao 5,94,
-praticamente igual a do raio-X (5,86). E a magnitude que carrega o argumento.
+Never plot the CbCr/Y ratio: DIOR is RGB, does not collapse, and its ratio (5.94) is
+practically the x-ray one (5.86). Magnitude carries the argument, not the ratio.
 
-Fontes: `results/ycbcr_decomposition_summary.json` para os seis dominios (o summary
-NAO contem os bracos de controle nem os de replay, de proposito) e
-`results/ycbcr_div2k_{color,gray,decorr}_on_kodak.json` para os controles, cujos
-pontos e IC sao re-derivados aqui e conferidos contra os valores publicados.
+Sources: `results/ycbcr_decomposition_summary.json` (six domains; it deliberately excludes
+the control and replay arms) and `results/ycbcr_div2k_{color,gray,decorr}_on_kodak.json`
+(controls, re-derived here and checked against the published values).
 
-⚠ B do bootstrap difere por fonte: 1000 nos seis dominios (gravado no summary) e
-2000 nos bracos de controle (e o valor com que o IC publicado do `gray` reproduz;
-nos outros dois o IC publicado nao distingue 1000 de 2000).
+Bootstrap B differs by source: 1000 for the six domains (recorded in the summary), 2000 for
+the control arms.
 
-Uso:
+Usage:
     export PYTHONPATH=src
     python plots/fig_luma_croma.py
 """
@@ -53,10 +47,9 @@ GENERICA = "results/ycbcr_generic_on_kodak.json"
 
 DOMINIOS = [("rico", "Tela (RICO)"), ("dior", "Aéreo (DIOR)"), ("retina", "Retina"),
             ("xray", "Raio-X"), ("documents", "Documentos"), ("oct", "OCT")]
-# Valores ja publicados dos bracos de controle, usados aqui como ALVO DE REPRODUCAO:
-# nenhum numero desta figura pode nascer nela. `dy_ci` so existe onde o IC de luma
-# esta publicado (o `gray`); nos outros dois o alvo e o ponto, e o IC desenhado sai
-# do mesmo reamostreio.
+# Published control values, used here as REPRODUCTION TARGETS: no number may originate in
+# this figure. `dy_ci` exists only where the luma CI is published (`gray`); for the other
+# two the target is the point, and the plotted CI comes from the same resampling.
 BOOT, SEED = 2000, 42
 CONTROLES = [
     dict(arm="div2k_color", rot="DIV2K colorido\n(controle −)", rot_col="DIV2K cor\n(controle −)",
@@ -79,7 +72,7 @@ def virgula(casas):
 
 
 def bootstrap_matched(gen, teste, canal, B, seed):
-    """Mesmo reamostreio pareado por imagem que `decompose_ycbcr.analyze` usa."""
+    """Same per-image paired resampling used by `decompose_ycbcr.analyze`."""
     gb, gm = stack(gen, "bpp"), stack(gen, canal)
     tb, tm = stack(teste, "bpp"), stack(teste, canal)
     n = gb.shape[1]
@@ -98,10 +91,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="results/plots/figs_relatorio/f3_luma_croma.png")
     ap.add_argument("--col", action="store_true",
-                    help="geometria de UMA coluna IEEE (3,4 in). Gera na largura "
-                         "final, sem reducao no .tex, para que os rotulos de 7 pt "
-                         "continuem com 7 pt na pagina. A anotacao do regime leve "
-                         "sai da figura e passa para a legenda.")
+                    help="single-column IEEE geometry (3.4 in), rendered at final "
+                         "width so 7 pt labels stay 7 pt on the page; the mild-regime "
+                         "annotation moves to the caption")
     args = ap.parse_args()
     S = load(SUMMARY)
     gen = load(GENERICA)
@@ -132,17 +124,14 @@ def main():
         if any(falhas):
             raise SystemExit(f"controle {pub['arm']} NÃO reproduz os valores "
                              "publicados — não plotado.")
-        # O IC de croma dos controles NAO e desenhado: nao esta publicado, e a
-        # convencao da figura e que nenhum numero nasca nela (o de luma do `gray`
-        # esta, e e ele quem valida o reamostreio usado nos outros dois).
+        # Chroma CIs of the controls are not drawn: they are not published, and no
+        # number may originate in this figure.
         controles.append((pub, dy, ci_y, dc, list(ctl["xcorr"])))
 
-    # O painel da direita mostra, para os seis dominios, a media no suporte casado
-    # gravada no summary. Os controles NAO estao no summary (`analyze` nao os inclui,
-    # e re-roda-lo reescreveria o JSON): deles vao os proprios valores por lambda,
-    # que sao o que esta publicado.
+    # Right panel: matched-support mean from the summary for the six domains. The controls
+    # are not in the summary, so their own per-lambda values are used instead.
     rotulos = dict(DOMINIOS)
-    if args.col:   # nomes curtos: numa coluna o rotulo do eixo come a area de desenho
+    if args.col:   # short names: in one column the tick labels eat the drawing area
         rotulos.update(rico="Tela", dior="Aéreo", xray="Raio-X", documents="Docs.")
     linhas = ([(rotulos[k], S["curves"][k]["psnr_y"], S["curves"][k]["psnr_cbcr"],
                 [S["xcorr"][k]["mean"]], False) for k, _rot in DOMINIOS]
@@ -189,7 +178,7 @@ def main():
             dir_.plot(xc, [y] * len(xc), marker="o", linestyle="none", color=PRETO,
                       markersize=4.5, zorder=3)
 
-    y_sep = len(CONTROLES) - 0.5   # separa os seis domínios dos três controles
+    y_sep = len(CONTROLES) - 0.5   # separates the six domains from the three controls
     for eixo in (esq, dir_):
         eixo.axhline(y_sep, color="0.55", linewidth=0.7, linestyle=(0, (3, 2)), zorder=1)
         eixo.grid(True, axis="x", alpha=0.25, linewidth=0.4)
@@ -223,7 +212,7 @@ def main():
                   xytext=(4, 0), textcoords="offset points", fontsize=7,
                   color=AZUL, va="center")
 
-    if not args.col:   # numa coluna nao ha espaco: a nota vai para a legenda do .tex
+    if not args.col:   # no room in one column: the note moves to the .tex caption
         dir_.text(0.856, -0.62, "○ controle: um ponto por λ", fontsize=7, color="0.35")
     barras = [plt.Rectangle((0, 0), 1, 1, facecolor=AZUL),
               plt.Rectangle((0, 0), 1, 1, facecolor=VERMELHO)]

@@ -1,25 +1,24 @@
-"""F4 - O antidoto: replay em 3 dominios, e o preco no raio-X.
+"""F4 - The antidote: DIV2K replay in 3 domains, and its price on x-ray.
 
-Afirma: replay DIV2K com alfa=0,8 elimina o colapso do decodificador nos tres
-dominios em que foi testado -- incluindo o pior do estudo -- e no raio-X isso custa
-cerca de um terco do ganho no alvo.
+Claim: replay with alpha=0.8 removes the decoder collapse in all three domains tested --
+including the worst one in the study -- and on x-ray this costs about a third of the
+target-domain gain.
 
-⚠ Vocabulario. No OCT o alvo e PRESERVADO (+0,233 contra +0,226 dB: sete milesimos,
-nunca "melhorou"). No raio-X ele e MAJORITARIAMENTE PRESERVADO, AO PRECO DE CERCA DE
-UM TERCO -- nunca "preservado", que e o verbo do OCT. Os dois casos levam anotacao
-propria, para que a figura nao apague a distincao.
+Wording matters, and the figure annotates each case so the distinction survives: on OCT the
+target is PRESERVED (+0.233 vs +0.226 dB, seven thousandths -- never "improved"); on x-ray
+it is MOSTLY preserved, AT THE PRICE OF ABOUT A THIRD.
 
-⚠ Unidade: ΔPSNR casado por bpp. O BD-Rate do alvo destas celulas NAO e reportavel
-(OCT: janela 0,988 dB, piso 0,958; raio-X: 0,768 e 0,744; reprovam a 1a guarda) e
-por isso nao aparece aqui em hipotese alguma.
+Unit: bpp-matched PSNR delta. Target BD-Rate is not reportable for these cells (OCT window
+0.988 dB, floor 0.958; x-ray 0.768 and 0.744 -- both fail the first guard), so it never
+appears here.
 
-⚠ Suportes diferentes por linha, declarados na figura: documentos compara os 8 lambda
-(as duas curvas os tem), OCT e raio-X comparam os 3 lambda do braco com replay.
+Support differs per row and is stated in the figure: documents compares the 8 lambdas, OCT
+and x-ray the 3 lambdas of the replay arm.
 
-Todos os valores sao lidos de JSON ou re-derivados e conferidos contra o publicado;
-se algum nao reproduzir, o script para sem plotar.
+Every value is read from JSON or re-derived and checked against the published one; the
+script aborts without plotting if anything fails to reproduce.
 
-Uso:
+Usage:
     export PYTHONPATH=src
     python plots/fig_replay.py
 """
@@ -42,7 +41,7 @@ AZUL, VERMELHO, PRETO = "#0072B2", "#D55E00", "#000000"
 KODAK = "results/kodak_rd.json"
 B, SEED, TOL = 1000, 42, 0.01
 
-# dominio, json sem replay, json com replay, (publicado sem, publicado com)
+# domain, json without replay, json with replay, (published without, published with)
 CROSS = [
     ("Documentos", "results/documents_decoder_on_cross_rd.json",
      "results/documents_decoder_replay_on_cross_rd.json", (-6.01, -0.02)),
@@ -51,7 +50,7 @@ CROSS = [
     ("Raio-X", "results/v7_decoder_on_kodak_rd.json",
      "results/_exp_01ago/xray_decoder_replay_on_cross_rd.json", (-4.158, +0.024)),
 ]
-# o preco no alvo: lido dos JSONs de contraste do lote de 01/08, sem recalcular
+# price on the target: read from the contrast JSONs, not recomputed
 ALVO = [
     ("OCT", "results/_exp_01ago/_control_b2_oct_target_grid.json",
      "oct_sem_replay", "oct_com_replay", "preservado"),
@@ -81,7 +80,7 @@ def pilha(js, chave):
 
 
 def casado(ref, teste):
-    """ΔPSNR medio casado por bpp, com IC bootstrap pareado por imagem."""
+    """Mean bpp-matched PSNR delta, with a per-image paired bootstrap CI."""
     v, _ = matched_mean(ref["bpp"], ref["psnr"], teste["bpp"], teste["psnr"])
     n_sup = len(matched_support(ref["bpp"], ref["psnr"], teste["bpp"]))
     rb, rp = pilha(ref, "bpp"), pilha(ref, "psnr")
@@ -102,9 +101,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="results/plots/figs_relatorio/f4_replay.png")
     ap.add_argument("--col", action="store_true",
-                    help="geometria de UMA coluna IEEE (3,4 in): paineis empilhados. "
-                         "Gera na largura final, sem reducao no .tex, de modo que os "
-                         "rotulos de 7 pt continuam com 7 pt na pagina.")
+                    help="single-column IEEE geometry (3.4 in), panels stacked and "
+                         "rendered at final width so 7 pt labels stay 7 pt on the page")
     args = ap.parse_args()
 
     kod = load(KODAK)

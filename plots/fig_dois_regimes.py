@@ -36,8 +36,8 @@ from decompose_ycbcr import matched_mean  # noqa: E402
 AZUL, VERMELHO, PRETO = "#0072B2", "#D55E00", "#000000"
 GENERICA = "results/kodak_rd.json"
 
-# rotulo, monocromatico?, json do encoder, json do decoder, (enc, dec) publicados
-# na Tabela II do relatorio, e se a celula do encoder tem IC cruzando zero.
+# label, monochrome?, encoder json, decoder json, (enc, dec) as published in Table II
+# of the report, and whether the encoder cell has a CI crossing zero.
 DOMINIOS = [
     ("Tela (RICO)", False, "results/rico_encoder_on_cross_rd.json",
      "results/rico_decoder_on_cross_rd.json", (+0.11, -0.03), False),
@@ -95,7 +95,7 @@ def main():
         1, 2, figsize=(3.10, 2.75), sharey=True,
         gridspec_kw=dict(width_ratios=[1.3, 1.0], wspace=0.07))
     alt = 0.36
-    ys = list(range(len(DOMINIOS)))[::-1]   # primeiro dominio no topo
+    ys = list(range(len(DOMINIOS)))[::-1]   # first domain on top
 
     for eixo in (esq, dir_):
         for y, (rotulo, mono, _je, _jd, _p, estrela) in zip(ys, DOMINIOS):
@@ -123,7 +123,7 @@ def main():
     esq.set_yticklabels([d[0] for d in DOMINIOS])
     esq.set_ylim(-0.72, len(DOMINIOS) - 0.28)
 
-    # marca de quebra de eixo, nas bordas que se encaram
+    # axis-break marks, on the facing edges
     esq.spines["right"].set_visible(False)
     dir_.spines["left"].set_visible(False)
     dir_.tick_params(left=False)
@@ -132,11 +132,11 @@ def main():
     esq.plot([1, 1], [0, 1], transform=esq.transAxes, **kw)
     dir_.plot([0, 0], [0, 1], transform=dir_.transAxes, **kw)
 
-    # o vao entre regimes: nao ha dominio nenhum ali, e e isso que a quebra atravessa
+    # the gap between regimes: no domain lands there, and that is what the break spans
     esq.text(-3.02, 2.60, "vão vazio: {:.2f} a {:.2f} dB".format(*VAO).replace(".", ","),
              ha="right", va="bottom", fontsize=7.6, color="0.3")
 
-    # a unica celula desta coluna com IC cruzando zero (Tabela II)
+    # the only cell in this column whose CI crosses zero (Table II)
     dir_.text(medidos[3][0] + 0.012, 2 + alt / 2 + 0.02, "*", fontsize=9,
               color=AZUL, va="center")
 

@@ -1,20 +1,19 @@
-"""F6 - O indice de saturacao foi pre-registrado e NAO preve.
+"""F6 - The saturation index was pre-registered and does NOT predict.
 
-Afirma: a 2x2 "o codificador domina dominios limitados por taxa" e DESCRICAO, nao
-regra. O indice S foi construido so a partir da curva GENERICA, antes de qualquer
-adaptacao, e pre-registrado; o criterio exigia um limiar em S que separasse
-perfeitamente os vencedores, na direcao prevista (S maior => codificador vence).
-Ele falha, e falha no ponto extremo: o OCT tem o MAIOR S do estudo -- a curva menos
-saturada -- e e vencido pelo DECODIFICADOR.
+Claim: the 2x2 "the encoder wins rate-limited domains" is DESCRIPTION, not rule. Index S was
+built from the GENERIC curve alone, before any adaptation, and pre-registered; the criterion
+required a threshold in S separating the winners perfectly, in the predicted direction
+(higher S => encoder wins). It fails, and fails at the extreme: OCT has the HIGHEST S in the
+study -- the least saturated curve -- and is won by the DECODER.
 
-⚠ A figura nao pode sugerir que existe um limiar "quase" funcionando: o criterio
-pre-registrado exigia separacao PERFEITA. Por isso o texto na figura diz onde
-qualquer corte falha, em vez de deixar o leitor tracar um limiar aproximado.
+The figure must not suggest a threshold that "almost" works: the pre-registered criterion
+required PERFECT separation. Hence the in-figure text states where any cut fails, instead of
+letting the reader draw an approximate one.
 
-Fonte: `results/_exp_30jul/saturation_index_verdict.json` (S, vencedor, BD e pisos
-de janela por dominio, mais o criterio pre-registrado em texto).
+Source: `results/_exp_30jul/saturation_index_verdict.json` (S, winner, BD and window floors
+per domain, plus the pre-registered criterion as text).
 
-Uso:
+Usage:
     python plots/fig_indice_saturacao.py
 """
 import argparse
@@ -53,9 +52,9 @@ def main():
         "font.size": 8.5, "axes.labelsize": 8.5, "xtick.labelsize": 7.5,
         "axes.linewidth": 0.7,
     })
-    # Uma linha por dominio, ordenadas por S: quatro dos seis dominios caem entre
-    # 0,111 e 0,159, e num scatter de uma unica linha os rotulos se sobrepoem.
-    # Se houvesse regra, um CORTE VERTICAL separaria os marcadores; nao ha.
+    # One row per domain, ordered by S: four of the six fall between 0.111 and 0.159, and
+    # in a single-row scatter the labels overlap. If a rule existed, a VERTICAL CUT would
+    # separate the markers; there is none.
     fig, eixo = plt.subplots(figsize=(3.16, 2.1))
     ys = list(range(len(tabela)))
 

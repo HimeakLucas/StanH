@@ -1,18 +1,17 @@
-"""F9 - Qualitativa: o colapso de cor do decodificador adaptado, e o replay.
+"""F9 - Qualitative: the color collapse of the adapted decoder, and the replay fix.
 
-ILUSTRA um fato ja medido (dano cromatico e correlacao inter-canal da saida);
-nao mede nada. Nenhum numero nasce aqui.
+ILLUSTRATES an already measured fact (chroma damage and output inter-channel correlation);
+it measures nothing. No number originates here.
 
-As reconstrucoes vem de `plots/decompose_ycbcr.py decompose --save_recon`, isto e,
-do mesmo caminho de codigo que produziu as curvas publicadas -- as imagens
-mostradas sao as imagens que foram medidas.
+Reconstructions come from `plots/decompose_ycbcr.py decompose --save_recon`, i.e. the same
+code path that produced the published curves -- the images shown are the images measured.
 
-O recorte NAO e escolhido a olho: para cada imagem toma-se a janela quadrada
-(passo de 64 px) de maior energia cromatica media no ORIGINAL, que e onde a perda
-de cor tem o que denunciar. Ampliacao por vizinho mais proximo, para que o
-artefato visto seja do codec e nao do redimensionamento.
+The crop is not picked by eye: for each image it is the square window (64 px stride) with
+the highest mean chroma energy in the ORIGINAL, which is where color loss has something to
+show. Nearest-neighbour zoom, so the visible artifact belongs to the codec and not to the
+resampling.
 
-Como gerar as reconstrucoes (2 imagens do Kodak num diretorio a parte):
+How to generate the reconstructions (2 Kodak images in a separate directory):
     export PYTHONPATH=src
     for c in generic oct oct_replay; do
       python plots/decompose_ycbcr.py decompose --curve $c \\
@@ -33,8 +32,8 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 IMAGENS = ["kodim03.png", "kodim23.png"]
-# curva -> (nivel gravado pelo --save_recon, rotulo da coluna)
-# Ponto de operacao casado em taxa: as tres curvas ficam em bpp medio 0,44-0,47
+# curve -> (level recorded by --save_recon, column label)
+# Rate-matched operating point: the three curves sit at mean bpp 0.44-0.47
 # (`results/kodak_rd.json`, `results/oct_decoder{,_replay}_on_cross_rd.json`).
 COLUNAS = [
     (None, None, "Original"),

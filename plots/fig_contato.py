@@ -1,9 +1,9 @@
-"""Contact sheet das figuras do relatorio: todas as miniaturas lado a lado.
+"""Contact sheet of the report figures: every thumbnail side by side.
 
-Nao e figura do relatorio -- e a folha de escolha, para decidir de relance o que
-entra quando o corte vier.
+Not a report figure -- it is the selection sheet, to decide at a glance what stays when the
+page cut comes.
 
-Uso:
+Usage:
     python plots/fig_contato.py
 """
 import argparse

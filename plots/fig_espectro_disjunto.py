@@ -1,15 +1,14 @@
-"""F0 - Espectro de adaptadores no raio-X, na amostra DISJUNTA por paciente.
+"""F0 - Adapter spectrum on x-ray, over the patient-DISJOINT sample.
 
-Substitui `pibic-paper/fig_spectrum.png`, que fora gerado em 03/07 a partir das
-curvas da amostra vazada (`results/*_on_xray_rd.json`) enquanto a Tabela I do
-relatorio ja estava na regua disjunta (`results/*_on_xray_disjoint_rd.json`).
-Aqui as duas ficam na mesma regua.
+Replaces an earlier figure drawn from the leaked sample (`results/*_on_xray_rd.json`)
+while the report table was already on the disjoint one
+(`results/*_on_xray_disjoint_rd.json`); both are on the same ruler here.
 
-A celula `full` tem duas replicas (`runBfix` e `runB8`), que compartilham o
-checkpoint de menor taxa; sao desenhadas na mesma cor, com estilos de linha
-diferentes, porque o relatorio reporta a FAIXA e nao um valor.
+The `full` cell has two replicas (`runBfix`, `runB8`) sharing the lowest-rate
+checkpoint. They are drawn in one color with different line styles, because the report
+gives a RANGE rather than a single value.
 
-Uso:
+Usage:
     export PYTHONPATH=src
     python plots/fig_espectro_disjunto.py
 """
@@ -24,7 +23,7 @@ from matplotlib.ticker import FuncFormatter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Okabe-Ito: segura para daltonismo e separavel em tons de cinza.
+# Okabe-Ito: colorblind-safe and separable in grayscale.
 AZUL, VERMELHO, VERDE, ROSA, AMBAR, PRETO = (
     "#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#000000")
 
@@ -35,29 +34,18 @@ def load(name):
 
 
 def virgula(casas):
-    """Formatador de eixo com virgula decimal (relatorio em portugues)."""
+    """Axis formatter with a decimal comma (the report is in Portuguese)."""
     return FuncFormatter(lambda v, _pos: f"{v:.{casas}f}".replace(".", ","))
 
 
-# O corpo desenha esta figura em `0.96\textwidth` FIXO, entao a largura em
-# polegadas nao muda o tamanho impresso: ela muda o quanto a figura e reduzida,
-# e portanto a ALTURA que ela ocupa na pagina. A versao de 7,0 in ficava com
-# aspecto h/w = 0,473 contra 0,382 da figura que ela substituiu.
+# The report includes this figure at a FIXED `0.96\textwidth`, so the width in inches does
+# not change the printed size: it changes how much the figure is scaled down, and therefore
+# the HEIGHT it takes on the page. This width matches the aspect ratio (h/w = 0.38) of the
+# figure it replaces.
 #
-# Por que alargar, e o que isso NAO faz. Medido em 04/08, no mesmo tectonic e na
-# mesma maquina: sobre o .tex PRE-figuras, o documento compila em 12 paginas com
-# a figura antiga e 13 com a de 7,0 in -- a geometria sozinha custava uma pagina.
-# Sobre o .tex ATUAL, com as dez figuras dentro, os tres aspectos (0,473 / 0,382 /
-# 0,377) dao 16 paginas, os tres. Ou seja: a economia NAO se realiza hoje, porque
-# o custo de pagina por figura nao e aditivo -- e efeito de limiar, e com dez
-# floats o LaTeX tem folga para absorver ~1% de altura sem cruzar fronteira.
-# Mantido assim por paridade de geometria com a figura que substitui, e porque e
-# de graca; nao por economia medida.
-#
-# O preco de alargar e que a reducao ate a largura de destino passa de 1,02x para
-# ~1,26x, o que encolheria as fontes abaixo do piso de 7 pt. Por isso tudo que e
-# medido em pontos escala junto, por ESCALA: no papel os rotulos de eixo ficam em
-# 7,36 pt nas duas versoes, identicos.
+# The price of the wider canvas is a 1.26x reduction instead of 1.02x, which would push
+# fonts below the 7 pt floor. Everything measured in points is therefore scaled by ESCALA,
+# so axis labels land at 7.36 pt either way.
 LARGURA_IN = 8.7
 ESCALA = LARGURA_IN / 7.0
 
@@ -73,7 +61,7 @@ def estilo():
     })
 
 
-# rotulo, json alvo, json cross, cor, marcador, estilo de linha
+# label, target json, cross json, color, marker, line style
 SERIES = [
     ("Genérica (autores)", "results/xray_generic_disjoint_rd.json",
      "results/kodak_rd.json", AZUL, "o", "-"),
@@ -98,8 +86,8 @@ def main():
     args = ap.parse_args()
     estilo()
 
-    # ⚠ A ALTURA nao escala: e alargar a altura constante que derruba o aspecto,
-    # e o aspecto e o que decide quantas paginas a figura ocupa.
+    # Height does NOT scale: widening at constant height is what lowers the aspect ratio,
+    # which is what decides how many pages the figure costs.
     fig, ax = plt.subplots(1, 2, figsize=(LARGURA_IN, 3.15))
     for rotulo, alvo, cross, cor, mk, ls in SERIES:
         for eixo, caminho in ((ax[0], alvo), (ax[1], cross)):
@@ -115,8 +103,8 @@ def main():
                   label=VTM[0], markersize=3.6 * ESCALA, linewidth=1.1 * ESCALA,
                   markeredgewidth=0.6 * ESCALA)
 
-    # O lambda=0,13 do `full` e dominado nas duas replicas (mais taxa, menos PSNR):
-    # o recuo e sistematico, nao ruido, e nao deve ser escondido.
+    # lambda=0.13 of `full` is dominated in both replicas (more rate, less PSNR): the
+    # regression is systematic rather than noise, and is not hidden.
     d = load(SERIES[4][1])
     i = d["lambdas"].index("lambda_0.13")
     ax[0].annotate("λ=0,13\ndominado", xy=(d["bpp"][i], d["psnr"][i]),
@@ -134,8 +122,8 @@ def main():
         eixo.grid(True, alpha=0.3, linewidth=0.4 * ESCALA)
         eixo.xaxis.set_major_formatter(virgula(casas))
         eixo.yaxis.set_major_formatter(virgula(0))
-    # Uma legenda so, embaixo: as duas curvas usam o mesmo mapeamento e a
-    # duplicacao roubava o canto util dos dois paineis.
+    # Single legend at the bottom: both panels share the mapping, and duplicating it stole
+    # the useful corner of each.
     linhas, rotulos = ax[0].get_legend_handles_labels()
     fig.legend(linhas, rotulos, loc="lower center", ncol=4, frameon=False,
                handlelength=2.8, columnspacing=1.4, bbox_to_anchor=(0.5, -0.012))
