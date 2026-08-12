@@ -303,4 +303,6 @@ scripts/staging/
 *.fls
 *.fdb_latexmk
 
+# Report sources, figures and build outputs stay local.
 pibic-paper/
+/_s*_revisao/
