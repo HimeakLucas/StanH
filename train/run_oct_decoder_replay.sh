@@ -1,20 +1,20 @@
 #!/bin/bash
-# B2 -- replay no OCT: o antidoto do esquecimento generaliza para o PIOR colapso do estudo?
+# Replay on OCT: does the forgetting antidote generalize to the WORST collapse of the study?
 #
-# O artigo afirma que o esquecimento do decodificador "nao e intrinseco" e que um lote de
-# imagens naturais na perda o elimina. A evidencia e de UM unico dominio (documentos,
-# -6,01 -> -0,02 dB com alfa=0,8). O OCT e o pior colapso medido (-7,19 dB) e e onde a
-# afirmacao e mais forte e menos testada.
+# The claim is that decoder forgetting is not intrinsic and that a batch of natural images in
+# the loss removes it. The evidence covers ONE domain (documents, -6.01 -> -0.02 dB with
+# alpha=0.8). OCT is the worst collapse measured (-7.19 dB), where the claim is strongest and
+# least tested.
 #
-# 3 lambda (os mesmos do controle de monocromia), alfa=0,8, replay em DIV2K.
-# INVARIANTE DO PROJETO: replay NUNCA usa Kodak -- Kodak e so avaliacao cross-domain, e
-# usa-lo como replay seria vazamento direto para a metrica que reporta o esquecimento.
+# 3 lambdas (the same as the color control), alpha=0.8, replay on DIV2K.
+# PROJECT INVARIANT: replay NEVER uses Kodak -- Kodak is cross-domain evaluation only, and
+# using it as replay would leak straight into the metric that reports forgetting.
 #
-# Hiperparametros identicos a train/run_spectrum.sh (EPOCHS=20, batch 16, patch 256,
-# --save_delta, mesmo mapa lambda->derivacao), para que a celula seja comparavel ao
-# `oct_decoder` sem replay que ja existe.
+# Hyperparameters identical to train/run_spectrum.sh (EPOCHS=20, batch 16, patch 256,
+# --save_delta, same lambda->derivation map), so the cell is comparable to the existing
+# `oct_decoder` without replay.
 #
-# Uso:  nohup bash train/run_oct_decoder_replay.sh > logs/b2_oct_replay.log 2>&1 &
+# Usage:  nohup bash train/run_oct_decoder_replay.sh > logs/b2_oct_replay.log 2>&1 &
 set -u
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"
@@ -48,7 +48,7 @@ done
 
 echo "[$(date '+%F %T')] TREINO CONCLUIDO -- avaliacoes"
 
-# Alvo: amostra disjunta por PACIENTE, v2 (a antiga tinha chave de grupo errada -- R28-1)
+# Target: patient-disjoint sample v2 (the older one used the wrong group key)
 python -u eval/eval_full.py --models_dir "$SAVE" \
     --dataset datasets/oct/test/sample_eval_disjoint_v2 --limit 150 --entropy_estimation \
     --out_json results/oct_decoder_replay_on_oct_disjoint_v2_rd.json

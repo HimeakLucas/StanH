@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# C1 -- reavaliacao do raio-X na amostra disjunta por paciente (train+val, pos-N6).
-# Nenhum treino: so reavaliacao dos checkpoints existentes na nova amostra.
+# Re-evaluation of the x-ray cells on the patient-disjoint sample (train+val excluded).
+# No training: only re-evaluation of the existing checkpoints on the new sample.
 set -uo pipefail
 
 cd "$(dirname "$0")/.."

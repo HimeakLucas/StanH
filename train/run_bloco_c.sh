@@ -1,28 +1,24 @@
 #!/bin/bash
-# BLOCO C -- aprovado pelo usuario em 30/07 (C1 sim; C2 nos tres dominios).
+# Two blocks in one run.
 #
-# C1: replica de semente numa SEGUNDA celula (xray_encoder, 8 lambda).
-#     A contribuicao (3) apoia-se hoje na replica de UMA celula (o `full`). O A4b de
-#     30/07 mostrou que a selecao de checkpoint NAO explica a instabilidade, o que
-#     deixa a evidencia mais dependente da replica empirica -- dai o valor de uma
-#     segunda celula independente.
+# 1) Seed replica on a SECOND cell (xray_encoder, 8 lambdas). The instability claim rests on
+#    the replica of a single cell (`full`), and checkpoint selection was measured NOT to
+#    explain it, which makes an independent second cell the evidence that matters.
 #
-#     ⚠ CONFIG MEDIDA, NAO ASSUMIDA: a corrida original do v8 usou BATCH_SIZE=8
-#     (train/run_xray_encoder_v8.sh), nao 16. Para ser REPLICA e nao outro
-#     experimento, esta corrida repete batch 8, 20 epocas, mesmos warm-starts e
-#     mesmo dataset. Custo medido nos timestamps do v8: ~62 min/lambda => ~8,3 h.
+#    Config is MEASURED, not assumed: the original v8 run used BATCH_SIZE=8
+#    (train/run_xray_encoder_v8.sh), not 16. To be a REPLICA rather than another experiment,
+#    this run repeats batch 8, 20 epochs, same warm-starts and same dataset. Measured cost
+#    from the v8 timestamps: ~62 min/lambda => ~8.3 h.
 #
-#     ⚠ O treinador NAO expoe --seed e nao chama manual_seed: a "semente nova" e a
-#     nao-determinacao de ordem de dados e de cuDNN. O warm-start e FIXO, entao esta
-#     variancia EXCLUI inicializacao por construcao -- mesma ressalva do N13.
+#    The trainer exposes no --seed and never calls manual_seed: the "new seed" is the
+#    nondeterminism of data order and cuDNN. The warm-start is FIXED, so this variance
+#    excludes initialization by construction.
 #
-# C2: encoder_hyper nos tres dominios que faltam (documentos, OCT, RICO).
-#     Config identica a das tres celulas que ja existem (xray, dior, retina), que
-#     usaram run_spectrum.sh com patch 256 / batch 16 -- verificado no cabecalho de
-#     logs/train_{xray,dior}_encoder_hyper.log. Custo medido: ~29 min/lambda => ~3,9 h
-#     por dominio, ~11,7 h nos tres.
+# 2) encoder_hyper on the three remaining domains (documents, OCT, RICO). Config identical to
+#    the three existing cells (xray, dior, retina), which used run_spectrum.sh with patch 256
+#    / batch 16. Measured cost: ~29 min/lambda => ~3.9 h per domain, ~11.7 h for the three.
 #
-# Uso:  nohup bash train/run_bloco_c.sh > logs/bloco_c.log 2>&1 &
+# Usage:  nohup bash train/run_bloco_c.sh > logs/bloco_c.log 2>&1 &
 set -u
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"
@@ -61,7 +57,7 @@ python -u eval/eval_full.py --models_dir "$SAVE" \
 say "C1 CONCLUIDO"
 
 # ------------------------------------------------------------------ C2 ---
-# dominio : dataset : amostra de avaliacao : sufixo do JSON alvo
+# domain : dataset : eval sample : target JSON suffix
 C2="documents:datasets/documents:datasets/documents/test/sample_eval:documents
 oct:datasets/oct:datasets/oct/test/sample_eval_disjoint_v2:oct_disjoint_v2
 rico:datasets/rico:datasets/rico/test/sample_eval:rico"

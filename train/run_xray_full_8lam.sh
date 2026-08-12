@@ -1,17 +1,15 @@
 #!/bin/bash
-# Espectro de 8 lambda do modo `full` em raio-X, treinado numa corrida unica.
+# 8-lambda spectrum of `full` mode on x-ray, trained in a single run.
 #
-# Motivacao: o ponto lambda=0,003 de uma corrida anterior ficou Pareto-invertido
-# (mais taxa, menos PSNR) e foi re-treinado a parte, o que deixou a curva
-# misturando pontos de duas corridas. Este script treina os lambda restantes no
-# MESMO save_dir, produzindo uma curva homogenea.
+# The lambda=0.003 point of an earlier run came out Pareto-inverted (more rate, less PSNR)
+# and was retrained separately, leaving the curve mixing points from two runs. This script
+# trains the remaining lambdas into the SAME save_dir, producing a homogeneous curve.
 #
-# Hiperparametros identicos aos da corrida original (ver train/run_xray_full.sh e
-# run_xray_full_dense.sh): batch 8, 20 epocas, patch 256, beta deterministico e os
-# mesmos warm-starts. A unica diferenca e a semente de facto: o treinador nao
-# expoe --seed.
+# Hyperparameters identical to the original run (see train/run_xray_full.sh and
+# run_xray_full_dense.sh): batch 8, 20 epochs, patch 256, deterministic beta and the same
+# warm-starts. The only difference is the de facto seed: the trainer exposes no --seed.
 #
-# lambda=0.003 ja existe em models/xray_full_v6_runB e e pulado.
+# lambda=0.003 already exists in models/xray_full_v6_runB and is skipped.
 #
 # Uso:  nohup bash train/run_xray_full_8lam.sh > logs/xray_full_8lam.log 2>&1 &
 set -u
@@ -26,7 +24,7 @@ EPOCHS=20
 BATCH_SIZE=8
 WANDB_PROJ="PIBIC_StanH_XRay_v6_fullft_runB"
 
-# lambda : derivação genérica de warm-start (mesmo mapa do v6 original)
+# lambda : generic warm-start derivation (same map as the original v6 run)
 LAMBDAS=("0.00666" "0.02"     "0.04"     "0.06305" "0.13"     "0.25"     "0.44014")
 DERIVS=( "D03-A040" "D10-A040" "D11-A040" "D11-A040" "D12-A040" "D13-A040" "D13-A040")
 

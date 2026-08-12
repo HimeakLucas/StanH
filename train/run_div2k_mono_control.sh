@@ -1,31 +1,28 @@
 #!/bin/bash
-# Controle de monocromia: o colapso cross-domain do decodificador e causado pela
-# ESTATISTICA distante do dominio, ou simplesmente por treinar em imagens
-# monocromaticas?
+# Monochrome control: is the cross-domain collapse of the decoder caused by the distant
+# domain STATISTICS, or simply by training on monochrome images?
 #
-# Nos seis dominios reais as duas coisas estao perfeitamente confundidas: os tres
-# que colapsam sao exatamente os tres monocromaticos, e com n=6 nao sao separaveis.
+# In the six real domains the two are perfectly confounded -- the three that collapse are
+# exactly the three monochrome ones -- and with n=6 they cannot be separated.
 #
-# Desenho: dois bracos sobre AS MESMAS 800 imagens do DIV2K (imagens naturais, que
-# a backbone nunca viu -- WACNN e STanH foram treinadas em OpenImages), diferindo
-# em uma unica variavel:
-#     div2k_color   RGB original
-#     div2k_gray    o mesmo conteudo com R=G=B
-# Tudo o mais e identico: mesma particao, mesmo agendamento, mesmos warm-starts.
+# Design: two arms over THE SAME 800 DIV2K images (natural content the backbone never saw;
+# WACNN and STanH were trained on OpenImages), differing in a single variable:
+#     div2k_color   original RGB
+#     div2k_gray    same content with R=G=B
+# Everything else is identical: same split, same schedule, same warm-starts.
 #
-#   gray colapsa e color nao   -> a causa e a monocromia
-#   os dois se comportam igual -> a monocromia nao basta; a distancia volta ao centro
+#   gray collapses and color does not -> monochrome is the cause
+#   both behave alike                 -> monochrome is not enough; distance is back in play
 #
-# Hiperparametros casados com train/run_spectrum.sh (batch 16, patch 256,
-# --save_delta, mesmo mapa lambda->derivacao). A UNICA diferenca e o numero de
-# epocas: 229 em vez de 20, para igualar os ~160k passes de imagem dos dominios,
-# que tem 8000 imagens contra as 700 daqui. A diversidade de dados continua menor
-# e isso deve ser declarado ao reportar.
+# Hyperparameters match train/run_spectrum.sh (batch 16, patch 256, --save_delta, same
+# lambda->derivation map). The only difference is the epoch count: 229 instead of 20, to
+# match the ~160k image passes of the real domains, which have 8000 images against 700 here.
+# Data diversity is still lower and must be declared when reporting.
 #
-# Ordem de execucao: alternada por lambda, os dois bracos lado a lado. Assim uma
-# interrupcao no meio ainda deixa pares completos, que e a comparacao que importa.
+# Execution order alternates by lambda, both arms side by side, so an interruption still
+# leaves complete pairs -- the pair is the comparison that matters.
 #
-# Uso:  nohup bash train/run_div2k_mono_control.sh > logs/div2k_mono_control.log 2>&1 &
+# Usage:  nohup bash train/run_div2k_mono_control.sh > logs/div2k_mono_control.log 2>&1 &
 set -u
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"

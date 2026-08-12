@@ -1,22 +1,21 @@
 #!/bin/bash
-# E2/G2 -- replay no decodificador do RAIO-X: o antidoto do esquecimento chega ao dominio
-# que carrega a Tabela I, o espectro completo e a manchete do artigo.
+# Replay on the X-RAY decoder: the antidote reaches the domain that carries the main table,
+# the full spectrum and the headline claim.
 #
-# O artigo reporta replay em documentos (n=1); o B2 acrescentou o OCT (n=2). Faltava o
-# raio-X, e sem ele o antidoto parece testado so onde deu certo.
+# Replay was reported on documents (n=1), then OCT (n=2). X-ray was missing, and without it
+# the antidote looks tested only where it worked.
 #
-# 3 lambda (os mesmos do B2/OCT), alfa=0,8, replay em DIV2K.
-# INVARIANTE DO PROJETO: replay NUNCA usa Kodak -- Kodak e so avaliacao cross-domain.
+# 3 lambdas (the same as the OCT run), alpha=0.8, replay on DIV2K.
+# PROJECT INVARIANT: replay NEVER uses Kodak -- Kodak is cross-domain evaluation only.
 #
-# ⚠ HIPERPARAMETROS: identicos aos do `v7_decoder` SEM replay, que e a celula de
-# comparacao -- e NAO aos do runner do OCT. Conferido na fonte
-# (train/run_xray_decoder_v7.sh:7): BATCH=8 (o OCT usou 16), patch 256 (default do
-# treinador), 20 epocas, lr 1e-5, mesmo mapa lambda->warm-start.
-# ⚠ SEM --save_delta, tambem para casar com o v7: o delta e gravado em fp16
-# (train_xray_full.py:245) e o fp16 sozinho move o BD agregado ~0,5 p.p. (achado N1b/X30-7).
-# O v7 tem checkpoints fp32 completos; a celula com replay tem de ter os mesmos.
+# HYPERPARAMETERS: identical to `v7_decoder` WITHOUT replay, which is the comparison cell --
+# and NOT to the OCT runner. Checked at the source (train/run_xray_decoder_v7.sh:7): BATCH=8
+# (OCT used 16), patch 256 (trainer default), 20 epochs, lr 1e-5, same lambda->warm-start map.
+# No --save_delta, again to match v7: the delta is stored in fp16 (train_xray_full.py:245)
+# and fp16 alone moves the aggregate BD by ~0.5 p.p. v7 has full fp32 checkpoints, so the
+# replay cell must have them too.
 #
-# Uso:  nohup bash train/run_xray_decoder_replay.sh > logs/e2_xray_replay.log 2>&1 &
+# Usage:  nohup bash train/run_xray_decoder_replay.sh > logs/e2_xray_replay.log 2>&1 &
 set -u
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"
@@ -49,7 +48,7 @@ done
 
 echo "[$(date '+%F %T')] TREINO CONCLUIDO -- avaliacoes"
 
-# Alvo: amostra disjunta por PACIENTE (150 imgs / 144 pacientes)
+# Target: patient-disjoint sample (150 imgs / 144 patients)
 python -u eval/eval_full.py --models_dir "$SAVE" \
     --dataset datasets/xrays/test/sample_eval_disjoint --limit 150 --entropy_estimation \
     --out_json results/_exp_01ago/xray_decoder_replay_on_xray_disjoint_rd.json

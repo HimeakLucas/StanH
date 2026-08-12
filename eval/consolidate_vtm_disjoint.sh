@@ -1,8 +1,8 @@
 #!/bin/bash
-# VTM/H.266 na amostra DISJUNTA por paciente do raio-X.
-# Mesmo protocolo do consolidate_vtm.sh: chunks x QPs em paralelo, merge por imagem.
-# Diferencas: amostra disjunta, JSON proprio, e NAO regenera a figura, que ainda
-# mistura curvas de uma amostra anterior e deve ser regenerada a parte.
+# VTM/H.266 on the patient-DISJOINT x-ray sample.
+# Same protocol as consolidate_vtm.sh: chunks x QPs in parallel, per-image merge.
+# Differences: disjoint sample, its own JSON, and it does NOT regenerate the figure, which
+# still mixes curves from an earlier sample and has to be rebuilt separately.
 set -u
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"

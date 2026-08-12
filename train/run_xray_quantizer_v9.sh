@@ -1,19 +1,19 @@
 #!/bin/bash
-# v9 — braço do QUANTIZADOR, re-treinado na convenção do espectro.
+# QUANTIZER arm, retrained under the spectrum convention.
 #
-# MOTIVO. O braço original do quantizador veio de train/train_xray_stanh.py, com
-# grade de 7 lambdas (só 3 coincidentes), batch e lr próprios. Isso obrigava o
-# relatório a declarar que as curvas não são pareadas ponto a ponto e que a
-# comparação só é legítima contra a referência genérica comum. Este script refaz o
-# braço com --mode quantizer no MESMO treinador dos outros três (train_xray_full.py),
-# mesma grade de 8 lambdas, mesmos warm-starts, mesmo epochs/batch/lr_stanh.
+# The original quantizer arm came from train/train_xray_stanh.py, on a 7-lambda grid (only 3
+# shared) with its own batch and lr. That forced the report to declare that the curves are
+# not paired point by point and that the comparison is only legitimate against the shared
+# generic reference. This script rebuilds the arm with --mode quantizer in the SAME trainer
+# as the other three (train_xray_full.py), same 8-lambda grid, same warm-starts, same
+# epochs/batch/lr_stanh.
 #
-# ⚠ NÃO é só uma re-grade: lr_stanh passa de 1e-4 (script antigo) para 1e-5 (convenção
-# do espectro) e epochs de 30 para 20. É um treino genuinamente diferente, e o
-# resultado tem de ser reportado seja qual for — inclusive se contradisser o
-# +1,23% de BD-Rate hoje publicado.
+# This is NOT just a re-grid: lr_stanh goes from 1e-4 (old script) to 1e-5 (spectrum
+# convention) and epochs from 30 to 20. It is a genuinely different training run, and the
+# result must be reported whatever it is -- including if it contradicts the published
+# +1.23% BD-Rate.
 #
-# Uso: nohup bash train/run_xray_quantizer_v9.sh > logs/v9_quantizer.log 2>&1 &
+# Usage: nohup bash train/run_xray_quantizer_v9.sh > logs/v9_quantizer.log 2>&1 &
 set -uo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONPATH=src

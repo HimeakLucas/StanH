@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Dois lotes independentes:
-#   1) converte os deltas do encoder para fp16, mede o tamanho real em disco contra
-#      a ancora compartilhada e reavalia em RD para medir a perda da conversao;
-#   2) re-treina dois checkpoints com semente nova (o `full` de lambda mais baixo,
-#      que ficou Pareto-invertido, e o encoder do RICO), para separar instabilidade
-#      de semente de efeito real.
+#   1) converts the encoder deltas to fp16, measures the real on-disk size against the
+#      shared anchor and re-evaluates RD to measure the conversion loss;
+#   2) retrains two checkpoints with a fresh seed (the lowest-lambda `full`, which came out
+#      Pareto-inverted, and the RICO encoder), to separate seed instability from real
+#      effect.
 set -uo pipefail
 
 cd "$(dirname "$0")/.."

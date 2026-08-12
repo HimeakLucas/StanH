@@ -1,18 +1,17 @@
 #!/bin/bash
-# B1 -- TERCEIRO braco do controle de monocromia: `div2k_decorr`.
+# THIRD arm of the color control: `div2k_decorr`.
 #
-# Copia de train/run_div2k_mono_control.sh trocando SO o dataset, para que o braco novo
-# seja comparavel aos dois que ja rodaram: mesmos 3 lambda, mesmos warm-starts, mesmas
-# 229 epocas, mesmo batch, mesmo patch, mesmo --save_delta.
+# A copy of train/run_div2k_mono_control.sh changing ONLY the dataset, so the new arm is
+# comparable to the two already run: same 3 lambdas, same warm-starts, same 229 epochs, same
+# batch, same patch, same --save_delta.
 #
-# O braco `decorr` preserva croma e desloca a estatistica de cor (rotacao KLT fixa,
-# canais descorrelacionados). E o braco que discrimina "a causa e a ausencia de croma"
-# de "a causa e o desalinhamento da estatistica de cor" -- ver o pre-registro, que
-# ESTREITA a leitura da tabela: os tres bracos tem conteudo espacial identico e
-# diferem apenas pelo mapa de cor, entao a "distancia" aqui e distancia DE COR,
-# nao distancia de dominio em geral.
+# The `decorr` arm keeps chroma and displaces the color statistics (fixed KLT rotation,
+# decorrelated channels). It is the arm that separates "the cause is the absence of chroma"
+# from "the cause is the misaligned color statistics". Note this narrows the reading: the
+# three arms share identical spatial content and differ only in the color map, so "distance"
+# here is COLOR distance, not domain distance in general.
 #
-# Uso:  nohup bash train/run_div2k_decorr_control.sh > logs/b1_div2k_decorr.log 2>&1 &
+# Usage:  nohup bash train/run_div2k_decorr_control.sh > logs/b1_div2k_decorr.log 2>&1 &
 set -u
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"

@@ -158,12 +158,12 @@ def main():
         for prm in model.parameters():
             prm.requires_grad = True
     elif args.mode == "quantizer":
-        # Só o quantizador paramétrico STanH (w, b), ~320 parâmetros; toda a backbone
-        # congelada. É a forma literal da hipótese do adaptador leve. Existia antes
-        # como script separado (train/train_xray_stanh.py) com grade de lambda, batch
-        # e lr próprios; trazido para cá em 06/08/2026 para que percorra a MESMA grade
-        # de 8 lambdas, os mesmos warm-starts e o mesmo lr_stanh dos demais braços, e
-        # a comparação passe a ser pareada ponto a ponto.
+        # Only the STanH parametric quantizer (w, b), ~320 parameters, with the whole
+        # backbone frozen: the literal form of the lightweight-adapter hypothesis. It used
+        # to live in a separate script (train/train_xray_stanh.py) with its own lambda grid,
+        # batch and lr; it was folded in here so it walks the SAME 8-lambda grid, the same
+        # warm-starts and the same lr_stanh as the other arms, making the comparison paired
+        # point by point.
         model.freeze_net()
         model.unfreeze_quantizer()
     elif args.mode == "decoder":
