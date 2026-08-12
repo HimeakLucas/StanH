@@ -1,8 +1,7 @@
 #!/bin/bash
-# E1 tiebreaker on DIOR (aerial): runs after the E3 RICO chain finishes and the GPU
-# frees. Trains the DIOR encoder+hyperprior spectrum, then evaluates it on the same
-# 150-image DIOR sample + Kodak used by the DIOR spectrum and prints BD-Rate (+CI)
-# next to the encoder-only numbers.
+# Tiebreaker on DIOR (aerial): runs after the RICO chain finishes and the GPU frees. Trains
+# the DIOR encoder+hyperprior spectrum, then evaluates it on the same 150-image DIOR sample +
+# Kodak used by the DIOR spectrum and prints BD-Rate (+CI) next to the encoder-only numbers.
 #
 # Why DIOR: on X-ray the hyperprior removed the encoder's low-rate penalty, on retina
 # it did not, but retina's generic curve saturates (~0.4 dB overlap window) so its

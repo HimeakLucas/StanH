@@ -1,5 +1,5 @@
 #!/bin/bash
-# G1 diagnostic (single variable = learning rate). Question: is the low-rate decline
+# Diagnostic with a single variable = learning rate. Question: is the low-rate decline
 # undertraining (lr too low to climb) or the objective (lambda=0.003 optimum sits
 # below the generic curve)?
 #

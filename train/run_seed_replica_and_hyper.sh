@@ -18,7 +18,7 @@
 #    the three existing cells (xray, dior, retina), which used run_spectrum.sh with patch 256
 #    / batch 16. Measured cost: ~29 min/lambda => ~3.9 h per domain, ~11.7 h for the three.
 #
-# Usage:  nohup bash train/run_bloco_c.sh > logs/bloco_c.log 2>&1 &
+# Usage:  nohup bash train/run_seed_replica_and_hyper.sh > logs/bloco_c.log 2>&1 &
 set -u
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"

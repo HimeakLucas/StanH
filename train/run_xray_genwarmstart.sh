@@ -4,7 +4,7 @@
 # Goal: keep the full bpp spread (each generic derivation already sits at its
 # target rate) and isolate the domain-adaptation delta on X-ray.
 # Per-point lambda is the RD-optimal lambda estimated from the generic X-ray
-# RD curve slope (lambda = -dbpp / (255^2 * dMSE)); see plots/analyze_v3.py notes.
+# RD curve slope (lambda = -dbpp / (255^2 * dMSE)).
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"
 

@@ -1,8 +1,8 @@
 #!/bin/bash
-# E3 chaining: once the retina encoder+hyperprior (E1) training finishes AND its
-# chained eval releases the GPU, train the RICO (screen content) adapter spectrum
-# (encoder + decoder) and then evaluate it (150-image sample + Kodak) with the
-# consolidated spectrum figure. Keeps the GPU busy with no manual step.
+# Chains the RICO run: once the retina encoder+hyperprior training finishes AND its chained
+# eval releases the GPU, train the RICO (screen content) adapter spectrum (encoder + decoder)
+# and then evaluate it (150-image sample + Kodak) with the consolidated spectrum figure.
+# Keeps the GPU busy with no manual step.
 set -u
 export PYTHONPATH=src
 export PATH="$HOME/miniconda3/envs/stanh/bin:$PATH"
