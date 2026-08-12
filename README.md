@@ -73,30 +73,79 @@ Until now, we use Torcach to perform Arithmetic coding (very slow), in future co
 
 ---
 
-## PIBIC fork — STanH as a domain-adaptation adapter
+## Research fork — how far does a parametric quantizer go as a domain adapter?
 
-This is a research fork (undergraduate research / PIBIC). The goal is to test whether the
-STanH quantization layer also works as a **lightweight fine-tuning adapter** for
-domain-specific datasets (X-ray, faces, documents): the anchor backbone (Zou22/WACNN)
-released by the authors is **frozen**, and only the STanH parameters (`w`, `b`) are
-refined on the target domain, then compared against the generic derivations and against
-the VVC reference software (VTM), following the paper's evaluation protocol.
+Undergraduate research fork (PIBIC). The question: the STanH quantizer has ~320 parameters,
+so if it could specialize a frozen backbone to a new domain it would be an extremely cheap
+adapter. Does it?
+
+The anchor backbone (Zou22/WACNN, ~75 M parameters) released by the authors is kept
+**frozen** and only a chosen block is refined per domain. Five adaptation modes span the
+cost axis:
+
+| mode | trainable | what it refines |
+|---|---|---|
+| `quantizer` | ~320 | STanH parameters (`w`, `b`) only |
+| `encoder` | 6.9 M | analysis transform |
+| `decoder` | 6.9 M | synthesis transform |
+| `encoder_hyper` | 22 M | analysis transform + hyperprior (unfreezes the rate model) |
+| `full` | 75 M | whole backbone |
+
+Six target domains: chest x-ray, documents, retina fundus, aerial (DIOR), OCT and screen
+content (RICO). Every cell is evaluated on its target domain and, cross-domain, on Kodak,
+against the authors' generic derivations and the VVC reference software (VTM).
+
+**The answer is negative, and that is the point**: quantizer-only does not adapt. The
+residual is resolved but tiny, and it flips sign with the quality metric (+1.23% BD-Rate in
+PSNR, -0.27% in MS-SSIM), an order of magnitude below the smallest adapter that works. The
+fork also reports where the aggregate BD-Rate itself is unreliable — changing storage
+precision of the *same trained model* (fp32 -> fp16) moves it 0.42 p.p. while the RD curve
+stays put.
+
+### Methodology notes
+
+- **Leakage.** Splits are grouped by patient/volume, not by file. Where the source dataset
+  keeps the group id (x-ray, OCT, retina), evaluation samples exclude every group seen in
+  train *or* validation; for the other three the collection scripts discard the origin id,
+  so only per-image disjointness can be guaranteed, and that is declared.
+- **BD-Rate guards.** BD-Rate is reported only when the overlap window survives two checks
+  (bootstrap floor of the window >= 1 dB, and a common floor when comparing samples).
+  Otherwise the unit is the bpp-matched PSNR delta with a per-image paired bootstrap CI.
+- `plots/analyze_finetuned.py` drops non-Pareto points *before* fixing the window, which is
+  discontinuous: 0.001 bpp can move BD-Rate by tens of points. Point counts and window
+  floors are reported alongside every comparison.
 
 ### Running
 
-All scripts expect to be run **from the repository root** with `src` on the path:
+All scripts run **from the repository root** with `src` on the path:
 
 ```bash
 conda activate stanh
-export PYTHONPATH=src            # scripts also resolve ../src automatically
+export PYTHONPATH=src
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-python eval/evaluate_kodak.py    # STanH RD curve on Kodak
-python eval/eval_vtm.py          # VTM baseline on Kodak (needs VVCSoftware_VTM built)
-bash   train/run_xray_finetune.sh
-python plots/plot_final.py
+# evaluation (anchor + derivations, or anchor + delta)
+python eval/evaluate_kodak.py                     # generic RD curve on Kodak
+python eval/eval_full.py --models_dir models/<cell> --dataset <test_dir> \
+    --limit 150 --out_json results/<cell>_rd.json
+python eval/eval_vtm.py                           # VTM baseline (needs VVCSoftware_VTM built)
+
+# training one adapter spectrum (8 rate points) for a domain
+bash train/run_spectrum.sh <domain> <dataset_dir> [patch] [batch] [modes...]
+bash train/run_spectrum.sh retina datasets/retina 256 16 encoder decoder full
+
+# analysis and figures
+python plots/analyze_finetuned.py --target_json <cell>_rd.json --cross_json <cell>_on_kodak.json
+python plots/fig_dois_regimes.py
 ```
 
-Datasets live under `datasets/` and model checkpoints under `models/` (both git-ignored,
-except the tiny paper derivations). The 300 MB anchor must be downloaded from the
-authors' [Drive link](https://drive.google.com/drive/folders/1LJ6nmQZJyMaJKFzr-sb2C9m9oxHE5pE5)
+`eval/eval_full.py` defaults to `--limit 24`; the evaluation protocol here is 150 images, so
+that flag is mandatory for any comparable number.
+
+Datasets live under `datasets/` and checkpoints under `models/` (both git-ignored, except
+the small paper derivations). The 300 MB anchor must be downloaded from the authors'
+[Drive link](https://drive.google.com/drive/folders/1LJ6nmQZJyMaJKFzr-sb2C9m9oxHE5pE5)
 into `models/original_paper/STanH/anchor/`.
+
+Figure scripts and the report are in Portuguese (axis labels, captions); the code and its
+comments are in English.
